@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Chatbot from './Chatbot';
@@ -7,6 +7,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
+import { db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 function Dashboard() {
   const { currentUser, logout } = useAuth();
@@ -14,6 +16,80 @@ function Dashboard() {
   const [loading, setLoading] = useState(false);
   const [voiceFeedback, setVoiceFeedback] = useState('');
   const [chatbotOpen, setChatbotOpen] = useState(false);
+  // Onboarding profile and recommendations
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [recommendations, setRecommendations] = useState([]);
+
+  // Fetch onboarding profile from Firestore
+  useEffect(() => {
+    async function fetchProfile() {
+      if (!currentUser) return;
+      setProfileLoading(true);
+      try {
+        const docRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setProfile(docSnap.data());
+        } else {
+          setProfile(null);
+        }
+      } catch (err) {
+        setProfile(null);
+      }
+      setProfileLoading(false);
+    }
+    fetchProfile();
+  }, [currentUser]);
+
+  // Rule-based recommendations
+  useEffect(() => {
+    if (!profile) return;
+    const recs = [];
+    if (profile.savings && Number(profile.savings) < 1000) {
+      recs.push({
+        text: 'Start a savings goal to build an emergency fund.',
+        link: '#',
+        why: 'Your current savings are low. An emergency fund helps you handle unexpected expenses.'
+      });
+    }
+    if (profile.userType === 'vendor' && profile.goals && profile.goals.toLowerCase().includes('expand')) {
+      recs.push({
+        text: 'Explore small business loans or investment plans.',
+        link: '#',
+        why: 'You mentioned wanting to expand your business. Funding options can help you grow.'
+      });
+    }
+    if (profile.comfort === 'beginner') {
+      recs.push({
+        text: 'View our beginner’s guide to money management.',
+        link: '#',
+        why: 'You indicated you are new to financial concepts. Start with the basics!'
+      });
+    }
+    if (profile.income && (!profile.expenses || Number(profile.income) > Number(profile.expenses))) {
+      recs.push({
+        text: 'Consider investing your surplus income for future growth.',
+        link: '#',
+        why: 'Investing can help your money grow over time.'
+      });
+    }
+    if (profile.userType === 'shg') {
+      recs.push({
+        text: 'Invite group members to join and track group savings together.',
+        link: '#',
+        why: 'SHG groups benefit from collective tracking and planning.'
+      });
+    }
+    if (recs.length === 0) {
+      recs.push({
+        text: 'Add your first income or expense to get started!',
+        link: '#',
+        why: 'Tracking your finances helps you make better decisions.'
+      });
+    }
+    setRecommendations(recs);
+  }, [profile]);
 
   async function handleLogout() {
     try {
@@ -118,10 +194,9 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Main Content */}
+      {/* Welcome Section */}
       <div className="container py-4">
         <div className="row">
-          {/* Welcome Section */}
           <div className="col-12 mb-4">
             <div className="card border-0 shadow-sm">
               <div className="card-body">
@@ -132,10 +207,18 @@ function Dashboard() {
                 <p className="card-text text-muted">
                   Hello, {currentUser?.displayName || 'Valued Customer'}! Here's your banking overview.
                 </p>
-                <div className="d-flex align-items-center gap-2">
+                <div className="d-flex align-items-center gap-2 mb-3">
                   <i className="fas fa-microphone text-primary"></i>
                   <small className="text-muted">Voice commands available - Try "open chat" or "logout"</small>
                 </div>
+                <button className="btn btn-outline-primary me-2" onClick={() => navigate('/onboarding')}>
+                  <i className="fas fa-user-edit me-2"></i>
+                  Update Profile / Onboarding
+                </button>
+                <button className="btn btn-outline-success" onClick={() => navigate('/welcome')}>
+                  <i className="fas fa-star me-2"></i>
+                  View Welcome & Recommendations
+                </button>
               </div>
             </div>
           </div>
