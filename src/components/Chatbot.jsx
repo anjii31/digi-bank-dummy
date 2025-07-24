@@ -1,41 +1,33 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getFreeAIResponse, isFreeAIAvailable } from '../services/freeAIService';
+import { isFreeAIAvailable } from '../services/freeAIService';
+import { sendMessageToVertexAI } from '../services/vertexAIChatService';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
 import { navbarLanguage } from './Navbar';
 
-// Helper to parse message text for **bold** and *italic* using CSS classes
-function parseChatbotMessage(text) {
-  // Replace **text** with <span class="chatbot-bold">text</span>
-  // Replace *text* with <span class="chatbot-italic">text</span>
-  let parsed = [];
-  let regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
-  let lastIndex = 0;
-  let match;
-  let key = 0;
-  while ((match = regex.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      parsed.push(text.slice(lastIndex, match.index));
-    }
-    const matchText = match[0];
-    if (matchText.startsWith('**') && matchText.endsWith('**')) {
-      parsed.push(
-        <span className="chatbot-bold" key={key++}>{matchText.slice(2, -2)}</span>
-      );
-    } else if (matchText.startsWith('*') && matchText.endsWith('*')) {
-      parsed.push(
-        <span className="chatbot-italic" key={key++}>{matchText.slice(1, -1)}</span>
-      );
-    } else {
-      parsed.push(matchText);
-    }
-    lastIndex = match.index + matchText.length;
+
+// Helper to render bot message text with bullets/numbered points as a list
+function renderChatbotText(text) {
+  if (!text) return null;
+  const lines = text.split('\n').filter(line => line.trim() !== '');
+  // Detect if most lines are bullets or numbers
+  const isBullet = lines.filter(line => /^(\s*[-*]\s+|\s*\d+\.\s+)/.test(line)).length > lines.length / 2;
+  if (isBullet) {
+    return (
+      <ul style={{ paddingLeft: '1.2em', marginBottom: 0 }}>
+        {lines.map((line, idx) => (
+          <li key={idx} style={{ textAlign: 'left', marginBottom: 2 }}>
+            {line.replace(/^(\s*[-*]\s+|\s*\d+\.\s+)/, '')}
+          </li>
+        ))}
+      </ul>
+    );
   }
-  if (lastIndex < text.length) {
-    parsed.push(text.slice(lastIndex));
-  }
-  return parsed;
+  // Otherwise, render as paragraphs
+  return lines.map((line, idx) => (
+    <div key={idx} style={{ textAlign: 'left', marginBottom: 2 }}>{line}</div>
+  ));
 }
 
 function Chatbot({ isOpen: externalIsOpen, onToggle }) {
@@ -100,26 +92,6 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
     recognitionRef.current.onerror = () => setIsListening(false);
   }, []);
 
-  // Enhanced bot response with free AI integration
-  const getBotResponse = async (message) => {
-    try {
-      console.log('Getting bot response for:', message);
-      
-      // Get free AI or fallback response
-      const response = await getFreeAIResponse(message, messages.slice(-6));
-      console.log('Bot response received:', response);
-      
-      return response;
-    } catch (error) {
-      console.error('Error in getBotResponse:', error);
-      
-      // Return a friendly error message
-      return {
-        text: "I'm having trouble processing your request right now. Please try again or contact our support team.",
-        quickReplies: ['Try Again', 'Contact Support', 'Help']
-      };
-    }
-  };
 
   const handleSendMessage = async (message = inputMessage) => {
     if (!message.trim()) return;
@@ -140,14 +112,14 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
 
     try {
       // Get AI or fallback response
-      const botResponse = await getBotResponse(message);
+      const aiResponse = await sendMessageToVertexAI(message);
       
       const botMessage = {
         id: Date.now() + 1,
-        text: botResponse.text,
+        text: typeof aiResponse === 'string' ? aiResponse : aiResponse.text,
         sender: 'bot',
         timestamp: new Date(),
-        quickReplies: botResponse.quickReplies
+        quickReplies: aiResponse.quickReplies
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -235,7 +207,7 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                         ? 'bg-primary text-white' 
                         : 'bg-light text-dark'
                     }`} style={{ maxWidth: '80%' }}>
-                      <div className="mb-1">{message.text}</div>
+                      <div className="mb-1">{message.sender === 'bot' ? renderChatbotText(message.text) : message.text}</div>
                       <small className={`${message.sender === 'user' ? 'text-white-50' : 'text-muted'}`}>
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </small>

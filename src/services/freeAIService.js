@@ -3,7 +3,7 @@
 
 import axios from 'axios';
 
-export const getFreeAIResponse = async (userMessage, conversationHistory = []) => {
+export const getFreeAIResponse = async (userMessage = []) => {
   try {
     // Call the correct GET API endpoint
     // If you get a 403 error, check your backend CORS settings and required headers
