@@ -17,6 +17,7 @@ import './App.css';
 
 // Placeholder for Home component (to be created)
 import Home from './components/Home';
+import OnboardingGuard from './components/OnboardingGuard';
 
 function App() {
   return (
@@ -35,7 +36,9 @@ function App() {
             path="/dashboard" 
             element={
               <PrivateRoute>
-                <Dashboard />
+                <OnboardingGuard>
+                  <Dashboard />
+                </OnboardingGuard>
               </PrivateRoute>
             } 
           />

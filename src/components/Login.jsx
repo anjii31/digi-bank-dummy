@@ -6,6 +6,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { auth } from '../firebase';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -24,7 +27,13 @@ function Login() {
       setError('');
       setLoading(true);
       await login(email, password);
-      navigate('/dashboard');
+      const docRef = doc(db, 'users', auth.currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists() && docSnap.data().onboardingComplete) {
+        navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
+      }
     } catch (error) {
       setError('Failed to sign in: ' + error.message);
     }
