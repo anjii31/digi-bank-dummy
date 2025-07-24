@@ -69,6 +69,7 @@ function Onboarding() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   const translations = {
     en: {
       complete: 'Complete Your Profile',
@@ -123,6 +124,63 @@ function Onboarding() {
     }
   };
   const t = translations[language] || translations.en;
+=======
+  // Language selection state
+  const [language, setLanguage] = useState('');
+  const [listening, setListening] = useState(false);
+  const [speechError, setSpeechError] = useState('');
+
+  // Play TTS prompt for language selection
+  useEffect(() => {
+    if (!language) {
+      const synth = window.speechSynthesis;
+      if (synth) {
+        const utter = new window.SpeechSynthesisUtterance(
+          'Please select your language: English, Hindi, or Marathi.'
+        );
+        utter.lang = 'en-IN';
+        synth.cancel(); // Stop any previous speech
+        synth.speak(utter);
+      }
+    }
+  }, [language]);
+
+  // Speech recognition for language selection
+  const handleSpeakLanguage = () => {
+    setSpeechError('');
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      setSpeechError('Speech recognition is not supported in this browser.');
+      return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    setListening(true);
+    recognition.start();
+    recognition.onresult = (event) => {
+      setListening(false);
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      if (transcript.includes('english')) {
+        setLanguage('en');
+      } else if (transcript.includes('hindi') || transcript.includes('हिंदी')) {
+        setLanguage('hi');
+      } else if (transcript.includes('marathi') || transcript.includes('मराठी')) {
+        setLanguage('mr');
+      } else {
+        setSpeechError('Could not recognize the language. Please try again.');
+      }
+    };
+    recognition.onerror = (event) => {
+      setListening(false);
+      setSpeechError('Speech recognition error: ' + event.error);
+    };
+    recognition.onend = () => {
+      setListening(false);
+    };
+  };
+>>>>>>> c97d56c0b8532af1c37cd23d38c49fd747fbcef0
 
   // Prefill onboarding form with existing profile
   useEffect(() => {
@@ -210,6 +268,29 @@ function Onboarding() {
       <div className="container py-5 text-center">
         <span className="spinner-border text-primary me-2"></span>
         <span>Loading your profile...</span>
+      </div>
+    );
+  }
+
+  // Language selection UI
+  if (!language) {
+    return (
+      <div className="container py-5 text-center" style={{ maxWidth: 400 }}>
+        <h2 className="fw-bold text-primary mb-4">
+          <i className="fas fa-language me-2"></i>
+          Select Your Language
+        </h2>
+        <p className="mb-4">Please select your language:</p>
+        <div className="d-flex flex-column gap-3 align-items-center">
+          <button className="btn btn-outline-primary btn-lg w-100" onClick={() => setLanguage('en')}>English</button>
+          <button className="btn btn-outline-primary btn-lg w-100" onClick={() => setLanguage('hi')}>हिन्दी (Hindi)</button>
+          <button className="btn btn-outline-primary btn-lg w-100" onClick={() => setLanguage('mr')}>मराठी (Marathi)</button>
+          <button className="btn btn-outline-secondary btn-lg w-100 mt-3 d-flex align-items-center justify-content-center" onClick={handleSpeakLanguage} disabled={listening}>
+            <i className={`fas fa-microphone${listening ? '-alt' : ''} me-2`}></i>
+            {listening ? 'Listening...' : 'Speak Now'}
+          </button>
+          {speechError && <div className="alert alert-danger mt-3" role="alert">{speechError}</div>}
+        </div>
       </div>
     );
   }
