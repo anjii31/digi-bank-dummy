@@ -36,11 +36,44 @@ function WelcomeScreen() {
   // ML-based recommendations
   useEffect(() => {
     if (!profile) return;
-    const recs = getRecommendationsForUser(profile).map(text => ({
-      text,
-      link: '#',
-      why: 'This recommendation is based on similar users in our system.'
-    }));
+    const recs = [];
+
+    if (profile.userType === 'individual') {
+      recs.push({
+        text: 'Explore personal finance tips and budgeting tools.',
+        link: '#',
+        why: 'As an individual, managing your personal finances is key to achieving your goals.'
+      });
+    }
+    if (profile.userType === 'Micro and small entrepreneurs' || profile.userType === 'vendor') {
+      recs.push({
+        text: 'Check out our resources for micro and small businesses.',
+        link: '#',
+        why: 'Entrepreneurs and vendors can benefit from business planning and digital payment solutions.'
+      });
+    }
+    if (profile.userType === 'communityHelper') {
+      recs.push({
+        text: 'Learn about group savings and community support programs.',
+        link: '#',
+        why: 'Community helpers can leverage collective financial tools for greater impact.'
+      });
+    }
+    if (profile.userType === 'farmer') {
+      recs.push({
+        text: 'Access agricultural finance and crop insurance guides.',
+        link: '#',
+        why: 'Farmers can benefit from specialized financial products and government schemes.'
+      });
+    }
+    if (profile.userType === 'other') {
+      recs.push({
+        text: 'Discover our full range of financial guidance resources.',
+        link: '#',
+        why: 'We offer support for a variety of financial needs and backgrounds.'
+      });
+    }
+
     if (recs.length === 0) {
       recs.push({
         text: 'Start tracking your income and expenses to understand your financial situation better.',
@@ -71,7 +104,7 @@ function WelcomeScreen() {
                 {(() => {
                   let msg = 'I see that you';
                   if (profile.userType) {
-                    msg += ` are a ${profile.userType === 'shg' ? 'member of an SHG group' : profile.userType}`;
+                    msg += ` are a ${profile.userType === 'individual' ? 'self-employed individual' : profile.userType}`;
                   }
                   if (profile.comfort) {
                     msg += ` and your comfort with financial concepts is "${profile.comfort}"`;
