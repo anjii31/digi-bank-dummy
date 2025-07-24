@@ -173,7 +173,16 @@ const Home = () => {
   };
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '2rem', background: '#f6f8fa', minHeight: '100vh' }}>
+    <div
+      style={{
+        textAlign: 'center',
+        marginTop: '2rem',
+        minHeight: '100vh',
+        background: `linear-gradient(rgba(246,248,250,0.7), rgba(246,248,250,0.7)), url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat fixed`,
+        backdropFilter: 'blur(2px)',
+        WebkitBackdropFilter: 'blur(2px)',
+      }}
+    >
       {/* Custom styles for animated welcome banner */}
       <style>{`
         .arthsetu-welcome {
@@ -218,14 +227,30 @@ const Home = () => {
       `}</style>
       {/* Language Selection Modal */}
       {showLangModal && (
-        <div className="modal fade show" tabIndex="-1" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
+        <div
+          className="modal fade show"
+          tabIndex="-1"
+          style={{
+            display: 'flex',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.5)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2000,
+          }}
+        >
+          <div className="modal-dialog" style={{ maxWidth: 400, width: '90%' }}>
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title text-primary">
                   <i className="fas fa-language me-2"></i>
                   Select Your Language
                 </h5>
+                <button type="button" className="btn-close" onClick={() => {}} aria-label="Close" disabled></button>
               </div>
               <div className="modal-body">
                 <p className="mb-4">Please select your language:</p>
@@ -249,8 +274,23 @@ const Home = () => {
 
       {/* Info Modal for Learn More */}
       {showInfoModal && (
-        <div className="modal fade show" tabIndex="-1" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}>
-          <div className="modal-dialog modal-dialog-centered">
+        <div
+          className="modal fade show"
+          tabIndex="-1"
+          style={{
+            display: 'flex',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.5)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2000,
+          }}
+        >
+          <div className="modal-dialog" style={{ maxWidth: 400, width: '90%' }}>
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title text-primary">
@@ -273,7 +313,7 @@ const Home = () => {
       {/* Welcome Banner - only show after language is selected */}
       {!showLangModal && (
         <div className="container mb-5">
-          <div className="py-5 px-3 rounded shadow-sm bg-white" style={{ maxWidth: 700, margin: '0 auto' }}>
+          <div className="py-5 px-3 rounded shadow-sm" style={{ maxWidth: 700, margin: '0 auto', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)' }}>
             <h1 className="arthsetu-welcome mb-2">Welcome to ArthSetu(Bridge for Finance)</h1>
             <p className="arthsetu-subtitle lead text-muted mb-4">Your personal financial guidance app—empowering you to make smarter money decisions, save more, and achieve your financial goals with confidence.</p>
             <button className="btn btn-primary btn-lg px-4 me-2">Login</button>
