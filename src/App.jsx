@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Login from './components/Login';
@@ -10,19 +10,19 @@ import Onboarding from './components/Onboarding';
 import WelcomeScreen from './components/WelcomeScreen';
 import GroupSavingsTracker from './components/GroupSavingsTracker';
 import Navbar from './components/Navbar';
+import Home from './components/Home';
+import Chatbot from './components/Chatbot';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './App.css';
-
-// Placeholder for Home component (to be created)
-import Home from './components/Home';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <Navbar />
+        <Chatbot />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
