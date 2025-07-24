@@ -3,6 +3,40 @@ import { getFreeAIResponse, isFreeAIAvailable } from '../services/freeAIService'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
+import { navbarLanguage } from './Navbar';
+
+// Helper to parse message text for **bold** and *italic* using CSS classes
+function parseChatbotMessage(text) {
+  // Replace **text** with <span class="chatbot-bold">text</span>
+  // Replace *text* with <span class="chatbot-italic">text</span>
+  let parsed = [];
+  let regex = /(\*\*[^*]+\*\*|\*[^*]+\*)/g;
+  let lastIndex = 0;
+  let match;
+  let key = 0;
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parsed.push(text.slice(lastIndex, match.index));
+    }
+    const matchText = match[0];
+    if (matchText.startsWith('**') && matchText.endsWith('**')) {
+      parsed.push(
+        <span className="chatbot-bold" key={key++}>{matchText.slice(2, -2)}</span>
+      );
+    } else if (matchText.startsWith('*') && matchText.endsWith('*')) {
+      parsed.push(
+        <span className="chatbot-italic" key={key++}>{matchText.slice(1, -1)}</span>
+      );
+    } else {
+      parsed.push(matchText);
+    }
+    lastIndex = match.index + matchText.length;
+  }
+  if (lastIndex < text.length) {
+    parsed.push(text.slice(lastIndex));
+  }
+  return parsed;
+}
 
 function Chatbot({ isOpen: externalIsOpen, onToggle }) {
   const [messages, setMessages] = useState([
@@ -18,6 +52,8 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
   const [isTyping, setIsTyping] = useState(false);
   const [isAIAvailableState, setIsAIAvailableState] = useState(false);
   const messagesEndRef = useRef(null);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
 
   // Use external state if provided, otherwise use internal state
   const isChatbotOpen = externalIsOpen !== undefined ? externalIsOpen : isOpen;
@@ -45,6 +81,23 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
     };
     
     checkAIAvailability();
+  }, []);
+
+  // Voice recognition setup
+  useEffect(() => {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.lang = 'en-US';
+    recognitionRef.current.interimResults = false;
+    recognitionRef.current.maxAlternatives = 1;
+    recognitionRef.current.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setInputMessage(transcript);
+      setIsListening(false);
+    };
+    recognitionRef.current.onend = () => setIsListening(false);
+    recognitionRef.current.onerror = () => setIsListening(false);
   }, []);
 
   // Enhanced bot response with free AI integration
@@ -125,6 +178,12 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleMicClick = () => {
+    if (!recognitionRef.current) return;
+    setIsListening(true);
+    recognitionRef.current.start();
   };
 
   return (
@@ -225,11 +284,27 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Type your message..."
+                  placeholder={
+                    navbarLanguage === 'hi'
+                      ? 'अपना संदेश लिखें या बोलें...'
+                      : navbarLanguage === 'mr'
+                        ? 'तुमचा संदेश लिहा किंवा बोला..'
+                        : 'Type your message...'
+                  }
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                 />
+                <button
+                  className="btn btn-outline-secondary"
+                  type="button"
+                  onClick={handleMicClick}
+                  disabled={isListening || isTyping}
+                  style={{ marginRight: '0.5rem' }}
+                  title="Speak your question"
+                >
+                  <i className={`fas fa-microphone${isListening ? ' text-danger' : ''}`}></i>
+                </button>
                 <button
                   className="btn btn-primary"
                   onClick={() => handleSendMessage()}
@@ -238,6 +313,11 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                   <i className="fas fa-paper-plane"></i>
                 </button>
               </div>
+              {isListening && (
+                <div className="mt-2 text-danger" style={{ fontSize: '0.95rem' }}>
+                  Listening... Speak now!
+                </div>
+              )}
             </div>
           </div>
         </div>
