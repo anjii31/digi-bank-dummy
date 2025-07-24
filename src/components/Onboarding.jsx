@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
 const steps = [
   { name: 'User Type', icon: 'fas fa-user', description: 'Tell us about yourself' },
@@ -184,6 +184,7 @@ function Onboarding() {
         Object.entries(profile).filter(([_, v]) => v !== '' && v !== undefined)
       );
       await setDoc(doc(db, 'users', currentUser.uid), filteredProfile, { merge: true });
+      await updateDoc(doc(db, 'users', currentUser.uid), { onboardingComplete: true });
       // If already had a profile, show 'Profile updated!', else show 'Profile saved!'
       const docSnap = await getDoc(doc(db, 'users', currentUser.uid));
       if (docSnap.exists()) {
@@ -191,7 +192,7 @@ function Onboarding() {
       } else {
         setSuccess(true);
       }
-      setTimeout(() => navigate('/welcome'), 1200);
+      setTimeout(() => navigate('/dashboard'), 1200);
     } catch (err) {
       setError('Failed to save profile: ' + err.message);
     }

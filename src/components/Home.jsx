@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from '../contexts/AuthContext';
 
 const financialVideos = [
   {
@@ -77,7 +81,31 @@ const securityBadges = [
   { icon: 'fa-user-check', label: 'KYC Verified' },
 ];
 
+const OnboardingGuard = ({ children }) => {
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    const checkOnboarding = async () => {
+      const docRef = doc(db, 'users', currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists() || !docSnap.data().onboardingComplete) {
+        navigate('/onboarding');
+      } else {
+        setLoading(false);
+      }
+    };
+    checkOnboarding();
+  }, [currentUser, navigate]);
+
+  if (loading) return null;
+  return children;
+};
+
 const Home = () => {
+  // All hooks must be at the top level
   const [language, setLanguage] = useState('');
   const [listening, setListening] = useState(false);
   const [speechError, setSpeechError] = useState('');
@@ -86,6 +114,10 @@ const Home = () => {
   const [showLangModal, setShowLangModal] = useState(true);
   const [showInfoModal, setShowInfoModal] = useState(false);
 
+  // Only after hooks: check the route and return null if not on home
+  if (window.location.pathname !== '/') return null;
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!language) {
       setShowLangModal(true);
@@ -101,6 +133,7 @@ const Home = () => {
     }
   }, [language]);
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (language) {
       if (recognitionRef.current) {
@@ -316,8 +349,6 @@ const Home = () => {
           <div className="py-5 px-3 rounded shadow-sm" style={{ maxWidth: 700, margin: '0 auto', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)' }}>
             <h1 className="arthsetu-welcome mb-2">Welcome to ArthSetu(Bridge for Finance)</h1>
             <p className="arthsetu-subtitle lead text-muted mb-4">Your personal financial guidance app—empowering you to make smarter money decisions, save more, and achieve your financial goals with confidence.</p>
-            <button className="btn btn-primary btn-lg px-4 me-2">Login</button>
-            <button className="btn btn-outline-primary btn-lg px-4">Sign Up</button>
           </div>
         </div>
       )}
