@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const steps = [
   { name: 'User Type', icon: 'fas fa-user', description: 'Tell us about yourself' },
@@ -56,6 +57,7 @@ const initialProfile = {
 };
 
 function Onboarding() {
+  const { language } = useLanguage();
   const [step, setStep] = useState(0);
   const [profile, setProfile] = useState(initialProfile);
   const [loading, setLoading] = useState(false);
@@ -66,6 +68,61 @@ function Onboarding() {
   const [showGoalSuggestions, setShowGoalSuggestions] = useState(false);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+
+  const translations = {
+    en: {
+      complete: 'Complete Your Profile',
+      step: 'Step',
+      of: 'of',
+      profileSaved: 'Profile saved! Redirecting...',
+      profileUpdated: 'Profile updated! Redirecting...',
+      goDashboard: 'Go to Dashboard',
+      userType: 'What type of user are you?',
+      chooseType: 'Choose your type...',
+      individual: 'Individual',
+      shg: 'SHG Group Member',
+      vendor: 'Small Vendor/Business Owner',
+      artisan: 'Artisan/Craftsman',
+      farmer: 'Farmer',
+      other: 'Other',
+      help: 'This helps us provide personalized recommendations for your financial journey.'
+    },
+    hi: {
+      complete: 'अपनी प्रोफ़ाइल पूरी करें',
+      step: 'चरण',
+      of: 'में से',
+      profileSaved: 'प्रोफ़ाइल सहेजी गई! पुनः निर्देशित किया जा रहा है...',
+      profileUpdated: 'प्रोफ़ाइल अपडेट की गई! पुनः निर्देशित किया जा रहा है...',
+      goDashboard: 'डैशबोर्ड पर जाएं',
+      userType: 'आप किस प्रकार के उपयोगकर्ता हैं?',
+      chooseType: 'अपना प्रकार चुनें...',
+      individual: 'व्यक्ति',
+      shg: 'SHG समूह सदस्य',
+      vendor: 'छोटे विक्रेता/व्यवसाय मालिक',
+      artisan: 'कारीगर/शिल्पकार',
+      farmer: 'किसान',
+      other: 'अन्य',
+      help: 'यह हमें आपकी वित्तीय यात्रा के लिए व्यक्तिगत अनुशंसाएँ प्रदान करने में मदद करता है।'
+    },
+    mr: {
+      complete: 'तुमची प्रोफाइल पूर्ण करा',
+      step: 'पायरी',
+      of: 'पैकी',
+      profileSaved: 'प्रोफाइल जतन केली! पुनर्निर्देशित केले जात आहे...',
+      profileUpdated: 'प्रोफाइल अपडेट केली! पुनर्निर्देशित केले जात आहे...',
+      goDashboard: 'डॅशबोर्डकडे जा',
+      userType: 'आपण कोणत्या प्रकारचे वापरकर्ता आहात?',
+      chooseType: 'तुमचा प्रकार निवडा...',
+      individual: 'वैयक्तिक',
+      shg: 'SHG गट सदस्य',
+      vendor: 'लहान विक्रेता/व्यवसाय मालक',
+      artisan: 'कारागीर/शिल्पकार',
+      farmer: 'शेतकरी',
+      other: 'इतर',
+      help: 'हे आम्हाला तुमच्या आर्थिक प्रवासासाठी वैयक्तिकृत शिफारसी देण्यास मदत करते.'
+    }
+  };
+  const t = translations[language] || translations.en;
 
   // Prefill onboarding form with existing profile
   useEffect(() => {
@@ -162,7 +219,7 @@ function Onboarding() {
       <div className="mb-4 text-center">
         <h2 className="fw-bold text-primary mb-3">
           <i className="fas fa-user-plus me-2"></i>
-          Complete Your Profile
+          {t.complete}
         </h2>
         <div className="progress my-4" style={{height: '10px'}}>
           <div 
@@ -184,7 +241,7 @@ function Onboarding() {
         </div>
         <div className="mb-3">
           <span className="badge bg-primary bg-opacity-10 text-primary px-4 py-2 fs-6">
-            <i className={steps[step].icon}></i> Step {step + 1} of {steps.length}: {steps[step].name}
+            <i className={steps[step].icon}></i> {t.step} {step + 1} {t.of} {steps.length}: {steps[step].name}
           </span>
         </div>
         <p className="text-muted">{steps[step].description}</p>
@@ -195,10 +252,10 @@ function Onboarding() {
         <div className="text-center my-4">
           <div className="alert alert-success" role="alert">
             <i className="fas fa-check-circle me-2"></i>
-            Profile saved! Redirecting...
+            {t.profileSaved}
           </div>
           <button className="btn btn-success btn-lg px-5 fw-bold mt-3" onClick={() => navigate('/dashboard')}>
-            Go to Dashboard <i className="fas fa-arrow-right ms-2"></i>
+            {t.goDashboard} <i className="fas fa-arrow-right ms-2"></i>
           </button>
         </div>
       )}
@@ -206,10 +263,10 @@ function Onboarding() {
         <div className="text-center my-4">
           <div className="alert alert-info" role="alert">
             <i className="fas fa-sync-alt me-2"></i>
-            Profile updated! Redirecting...
+            {t.profileUpdated}
           </div>
           <button className="btn btn-success btn-lg px-5 fw-bold mt-3" onClick={() => navigate('/dashboard')}>
-            Go to Dashboard <i className="fas fa-arrow-right ms-2"></i>
+            {t.goDashboard} <i className="fas fa-arrow-right ms-2"></i>
           </button>
         </div>
       )}
@@ -219,7 +276,7 @@ function Onboarding() {
           <div>
             <label htmlFor="userType" className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-user me-2 text-primary"></i>
-              What type of user are you?
+              {t.userType}
             </label>
             <select 
               className="form-select form-select-lg" 
@@ -229,16 +286,16 @@ function Onboarding() {
               id="userType"
               aria-describedby="userTypeHelp"
             >
-              <option value="">Choose your type...</option>
-              <option value="individual">Individual</option>
-              <option value="shg">SHG Group Member</option>
-              <option value="vendor">Small Vendor/Business Owner</option>
-              <option value="artisan">Artisan/Craftsman</option>
-              <option value="farmer">Farmer</option>
-              <option value="other">Other</option>
+              <option value="">{t.chooseType}</option>
+              <option value="individual">{t.individual}</option>
+              <option value="shg">{t.shg}</option>
+              <option value="vendor">{t.vendor}</option>
+              <option value="artisan">{t.artisan}</option>
+              <option value="farmer">{t.farmer}</option>
+              <option value="other">{t.other}</option>
             </select>
             <div id="userTypeHelp" className="form-text">
-              This helps us provide personalized recommendations for your financial journey.
+              {t.help}
             </div>
           </div>
         )}
@@ -467,7 +524,7 @@ function Onboarding() {
           onClick={() => navigate('/dashboard')}
           aria-label="Go to dashboard"
         >
-          Go to Dashboard <i className="fas fa-arrow-right ms-2"></i>
+          {t.goDashboard} <i className="fas fa-arrow-right ms-2"></i>
         </button>
       </div>
     </div>

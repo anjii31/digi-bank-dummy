@@ -14,6 +14,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './App.css';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 // Placeholder for Home component (to be created)
 import Home from './components/Home';
@@ -22,24 +23,26 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/welcome" element={<WelcomeScreen />} />
-          <Route path="/group-savings" element={<GroupSavingsTracker />} />
-          <Route 
-            path="/dashboard" 
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            } 
-          />
-        </Routes>
+        <LanguageProvider>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/welcome" element={<WelcomeScreen />} />
+            <Route path="/group-savings" element={<GroupSavingsTracker />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              } 
+            />
+          </Routes>
+        </LanguageProvider>
       </AuthProvider>
     </Router>
   );

@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Navbar = () => {
-  const [language, setLanguage] = useState('en');
+  const { language, setLanguage } = useLanguage();
+  const translations = {
+    en: { home: 'Home', login: 'Login', language: 'Language' },
+    hi: { home: 'होम', login: 'लॉगिन', language: 'भाषा' },
+    mr: { home: 'मुख्यपृष्ठ', login: 'लॉगिन', language: 'भाषा' }
+  };
+  const t = translations[language] || translations.en;
 
   const handleLanguageChange = (e) => {
     setLanguage(e.target.value);
-    // Optionally, trigger a callback or context update here
   };
 
   return (
@@ -38,7 +44,7 @@ const Navbar = () => {
             transition: 'color 0.2s',
           }}
         >
-          <i className="fas fa-home"></i> Home
+          <i className="fas fa-home"></i> {t.home}
         </Link>
         <Link
           to="/login"
@@ -53,7 +59,7 @@ const Navbar = () => {
             transition: 'color 0.2s',
           }}
         >
-          <i className="fas fa-sign-in-alt"></i> Login
+          <i className="fas fa-sign-in-alt"></i> {t.login}
         </Link>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

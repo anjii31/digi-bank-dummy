@@ -3,8 +3,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { useLanguage } from '../contexts/LanguageContext';
 
 function WelcomeScreen() {
+  const { language } = useLanguage();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
@@ -260,22 +262,68 @@ function WelcomeScreen() {
     setRecommendations(recs.slice(0, 6));
   }, [profile]);
 
+  const translations = {
+    en: {
+      welcome: 'Welcome to DigiBank!',
+      excited: `We're excited to help you on your financial journey.`,
+      summary: 'Your Profile Summary',
+      recommended: 'Recommended for You',
+      why: 'Why this?',
+      group: 'Go to Group Savings Tracker',
+      learn: 'Learn More',
+      dashboard: 'Go to Dashboard',
+      noProfile: 'No profile data found. Please complete onboarding.',
+      whyRec: 'Why This Recommendation?',
+      close: 'Close explanation',
+      loading: 'Loading your profile...'
+    },
+    hi: {
+      welcome: 'DigiBank में आपका स्वागत है!',
+      excited: 'हम आपकी वित्तीय यात्रा में आपकी मदद करने के लिए उत्साहित हैं।',
+      summary: 'आपकी प्रोफ़ाइल सारांश',
+      recommended: 'आपके लिए अनुशंसित',
+      why: 'क्यों?',
+      group: 'समूह बचत ट्रैकर पर जाएं',
+      learn: 'और जानें',
+      dashboard: 'डैशबोर्ड पर जाएं',
+      noProfile: 'कोई प्रोफ़ाइल डेटा नहीं मिला। कृपया ऑनबोर्डिंग पूरा करें।',
+      whyRec: 'यह अनुशंसा क्यों?',
+      close: 'व्याख्या बंद करें',
+      loading: 'आपकी प्रोफ़ाइल लोड हो रही है...'
+    },
+    mr: {
+      welcome: 'DigiBank मध्ये आपले स्वागत आहे!',
+      excited: 'आम्ही तुमच्या आर्थिक प्रवासात मदत करण्यास उत्सुक आहोत.',
+      summary: 'तुमचा प्रोफाइल सारांश',
+      recommended: 'तुमच्यासाठी शिफारसी',
+      why: 'का?',
+      group: 'समूह बचत ट्रॅकरकडे जा',
+      learn: 'अधिक जाणून घ्या',
+      dashboard: 'डॅशबोर्डकडे जा',
+      noProfile: 'कोणताही प्रोफाइल डेटा सापडला नाही. कृपया ऑनबोर्डिंग पूर्ण करा.',
+      whyRec: 'ही शिफारस का?',
+      close: 'स्पष्टीकरण बंद करा',
+      loading: 'तुमचा प्रोफाइल लोड होत आहे...'
+    }
+  };
+  const t = translations[language] || translations.en;
+
   return (
     <div className="container py-5" style={{maxWidth: 700}}>
       <div className="text-center mb-4">
-        <h2 className="fw-bold text-primary mb-2">Welcome to DigiBank!</h2>
-        <p className="lead text-muted">We're excited to help you on your financial journey.</p>
+        <h2 className="fw-bold text-primary mb-2">{t.welcome}</h2>
+        <p className="lead text-muted">{t.excited}</p>
       </div>
       <div className="card border-0 shadow-sm mb-4">
         <div className="card-body">
           {loading ? (
             <div className="d-flex align-items-center justify-content-center py-4">
               <span className="spinner-border text-primary me-2"></span>
-              <span>Loading your profile...</span>
+              <span>{t.loading}</span>
             </div>
           ) : profile ? (
             <>
-              <h4 className="mb-3 text-success">Your Profile Summary</h4>
+              <h4 className="mb-3 text-success">{t.summary}</h4>
               <div className="alert alert-info mb-4 text-dark fs-5" style={{background: 'rgba(0,123,255,0.07)'}}>
                 {(() => {
                   let msg = 'I see that you';
@@ -301,7 +349,7 @@ function WelcomeScreen() {
                   return msg;
                 })()}
               </div>
-              <h5 className="mb-3 text-primary">Recommended for You</h5>
+              <h5 className="mb-3 text-primary">{t.recommended}</h5>
               <div className="row g-3 mb-4">
                 {recommendations.map((rec, idx) => (
                   <div key={idx} className="col-md-6 col-lg-4">
@@ -319,17 +367,17 @@ function WelcomeScreen() {
                             >
                               <i className="fas fa-info-circle"></i>
                             </button>
-                            <span className="small text-muted">Why this?</span>
+                            <span className="small text-muted">{t.why}</span>
                           </div>
                         </div>
                         {/* Action button for SHG group savings tracker */}
                         {rec.text.includes('Track group savings') ? (
                           <button className="btn btn-primary mt-auto" onClick={() => navigate('/group-savings')}>
-                            Go to Group Savings Tracker
+                            {t.group}
                           </button>
                         ) : (
                           <a href={rec.link} className="btn btn-outline-primary mt-auto" target="_blank" rel="noopener noreferrer">
-                            Learn More
+                            {t.learn}
                           </a>
                         )}
                       </div>
@@ -339,12 +387,12 @@ function WelcomeScreen() {
               </div>
               <div className="text-center">
                 <button className="btn btn-success btn-lg px-5 fw-bold" onClick={() => navigate('/dashboard')}>
-                  Go to Dashboard <i className="fas fa-arrow-right ms-2"></i>
+                  {t.dashboard} <i className="fas fa-arrow-right ms-2"></i>
                 </button>
               </div>
             </>
           ) : (
-            <div className="alert alert-warning mb-0">No profile data found. Please complete onboarding.</div>
+            <div className="alert alert-warning mb-0">{t.noProfile}</div>
           )}
         </div>
       </div>
@@ -357,7 +405,7 @@ function WelcomeScreen() {
             <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
               <h5 className="mb-0">
                 <i className="fas fa-info-circle me-2"></i>
-                Why This Recommendation?
+                {t.whyRec}
               </h5>
               <button 
                 className="btn btn-link text-white p-0"

@@ -3,12 +3,38 @@ import { getFreeAIResponse, isFreeAIAvailable } from '../services/freeAIService'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
+import { useLanguage } from '../contexts/LanguageContext';
 
 function Chatbot({ isOpen: externalIsOpen, onToggle }) {
+  const { language } = useLanguage();
+
+  const translations = {
+    en: {
+      greeting: "Hello! I'm DigiBank Assistant. How can I help you today?",
+      error: "I'm having trouble processing your request right now. Please try again or contact our support team.",
+      typing: "Assistant is typing...",
+      placeholder: "Type your message..."
+    },
+    hi: {
+      greeting: "नमस्ते! मैं DigiBank सहायक हूँ। मैं आपकी कैसे मदद कर सकता हूँ?",
+      error: "मैं अभी आपकी अनुरोध को संसाधित करने में असमर्थ हूँ। कृपया पुनः प्रयास करें या हमारी सहायता टीम से संपर्क करें।",
+      typing: "सहायक टाइप कर रहा है...",
+      placeholder: "अपना संदेश लिखें..."
+    },
+    mr: {
+      greeting: "नमस्कार! मी DigiBank सहाय्यक आहे. मी तुम्हाला कशी मदत करू शकतो?",
+      error: "मी सध्या तुमच्या विनंतीवर प्रक्रिया करण्यात अक्षम आहे. कृपया पुन्हा प्रयत्न करा किंवा आमच्या सहाय्यक टीमशी संपर्क साधा.",
+      typing: "सहाय्यक टाइप करत आहे...",
+      placeholder: "आपला संदेश लिहा..."
+    }
+  };
+
+  const t = translations[language] || translations.en;
+
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hello! I'm DigiBank Assistant. How can I help you today?",
+      text: t.greeting,
       sender: 'bot',
       timestamp: new Date()
     }
@@ -62,7 +88,7 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
       
       // Return a friendly error message
       return {
-        text: "I'm having trouble processing your request right now. Please try again or contact our support team.",
+        text: t.error,
         quickReplies: ['Try Again', 'Contact Support', 'Help']
       };
     }
@@ -209,7 +235,7 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                           <span></span>
                           <span></span>
                         </div>
-                        <small className="text-muted">Assistant is typing...</small>
+                        <small className="text-muted">{t.typing}</small>
                       </div>
                     </div>
                   </div>
@@ -225,7 +251,7 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Type your message..."
+                  placeholder={t.placeholder}
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}

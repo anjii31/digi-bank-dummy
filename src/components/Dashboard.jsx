@@ -9,6 +9,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { useLanguage } from '../contexts/LanguageContext';
 
 function Dashboard() {
   const { currentUser, logout } = useAuth();
@@ -20,6 +21,62 @@ function Dashboard() {
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [recommendations, setRecommendations] = useState([]);
+  const { language } = useLanguage();
+
+  const translations = {
+    en: {
+      welcome: 'Welcome to DigiBank',
+      overview: `Hello, {name}! Here's your banking overview.`,
+      updateProfile: 'Update Profile / Onboarding',
+      viewWelcome: 'View Welcome & Recommendations',
+      voice: 'Voice commands available - Try "open chat" or "logout"',
+      profile: 'Profile',
+      settings: 'Settings',
+      signOut: 'Sign Out',
+      signingOut: 'Signing Out...',
+      assistant: 'Voice Assistant Available',
+      assistantDesc: 'Use voice commands to navigate and interact with your banking dashboard. Click the microphone button in the top-right corner to get started.',
+      openChat: '"Open chat"',
+      talk: 'Talk to assistant',
+      logout: '"Logout"',
+      signOutSmall: 'Sign out'
+    },
+    hi: {
+      welcome: 'DigiBank में आपका स्वागत है',
+      overview: 'नमस्ते, {name}! यह है आपका बैंकिंग अवलोकन।',
+      updateProfile: 'प्रोफ़ाइल अपडेट करें / ऑनबोर्डिंग',
+      viewWelcome: 'स्वागत और अनुशंसाएँ देखें',
+      voice: 'वॉइस कमांड उपलब्ध हैं - "open chat" या "logout" आज़माएँ',
+      profile: 'प्रोफ़ाइल',
+      settings: 'सेटिंग्स',
+      signOut: 'साइन आउट',
+      signingOut: 'साइन आउट हो रहा है...',
+      assistant: 'वॉइस असिस्टेंट उपलब्ध',
+      assistantDesc: 'अपने बैंकिंग डैशबोर्ड में नेविगेट और इंटरैक्ट करने के लिए वॉइस कमांड का उपयोग करें। शुरू करने के लिए ऊपर दाएँ कोने में माइक्रोफोन बटन पर क्लिक करें।',
+      openChat: '"Open chat"',
+      talk: 'सहायक से बात करें',
+      logout: '"Logout"',
+      signOutSmall: 'साइन आउट'
+    },
+    mr: {
+      welcome: 'DigiBank मध्ये आपले स्वागत आहे',
+      overview: 'नमस्कार, {name}! हे आहे तुमचे बँकिंग अवलोकन.',
+      updateProfile: 'प्रोफाइल अपडेट करा / ऑनबोर्डिंग',
+      viewWelcome: 'स्वागत आणि शिफारसी पहा',
+      voice: 'व्हॉइस कमांड उपलब्ध आहेत - "open chat" किंवा "logout" वापरा',
+      profile: 'प्रोफाइल',
+      settings: 'सेटिंग्ज',
+      signOut: 'साइन आउट',
+      signingOut: 'साइन आउट होत आहे...',
+      assistant: 'व्हॉइस सहाय्यक उपलब्ध',
+      assistantDesc: 'तुमच्या बँकिंग डॅशबोर्डमध्ये नेव्हिगेट आणि संवाद साधण्यासाठी व्हॉइस कमांड वापरा. सुरू करण्यासाठी वर उजव्या कोपर्यातील मायक्रोफोन बटणावर क्लिक करा.',
+      openChat: '"Open chat"',
+      talk: 'सहाय्यकाशी बोला',
+      logout: '"Logout"',
+      signOutSmall: 'साइन आउट'
+    }
+  };
+  const t = translations[language] || translations.en;
 
   // Fetch onboarding profile from Firestore
   useEffect(() => {
@@ -202,22 +259,22 @@ function Dashboard() {
               <div className="card-body">
                 <h2 className="card-title text-primary mb-3">
                   <i className="fas fa-home me-2"></i>
-                  Welcome to DigiBank
+                  {t.welcome}
                 </h2>
                 <p className="card-text text-muted">
-                  Hello, {currentUser?.displayName || 'Valued Customer'}! Here's your banking overview.
+                  {t.overview.replace('{name}', currentUser?.displayName || 'Valued Customer')}
                 </p>
                 <div className="d-flex align-items-center gap-2 mb-3">
                   <i className="fas fa-microphone text-primary"></i>
-                  <small className="text-muted">Voice commands available - Try "open chat" or "logout"</small>
+                  <small className="text-muted">{t.voice}</small>
                 </div>
                 <button className="btn btn-outline-primary me-2" onClick={() => navigate('/onboarding')}>
                   <i className="fas fa-user-edit me-2"></i>
-                  Update Profile / Onboarding
+                  {t.updateProfile}
                 </button>
                 <button className="btn btn-outline-success" onClick={() => navigate('/welcome')}>
                   <i className="fas fa-star me-2"></i>
-                  View Welcome & Recommendations
+                  {t.viewWelcome}
                 </button>
               </div>
             </div>
@@ -363,11 +420,10 @@ function Dashboard() {
               <div className="card-body text-center">
                 <h6 className="text-primary mb-3">
                   <i className="fas fa-microphone me-2"></i>
-                  Voice Assistant Available
+                  {t.assistant}
                 </h6>
                 <p className="text-muted mb-3">
-                  Use voice commands to navigate and interact with your banking dashboard. 
-                  Click the microphone button in the top-right corner to get started.
+                  {t.assistantDesc}
                 </p>
                 <div className="row justify-content-center">
                   <div className="col-md-8">
@@ -375,15 +431,15 @@ function Dashboard() {
                       <div className="col-6">
                         <div className="p-3 bg-light rounded">
                           <i className="fas fa-comments text-primary mb-2"></i>
-                          <p className="mb-0 small fw-semibold">"Open chat"</p>
-                          <small className="text-muted">Talk to assistant</small>
+                          <p className="mb-0 small fw-semibold">{t.openChat}</p>
+                          <small className="text-muted">{t.talk}</small>
                         </div>
                       </div>
                       <div className="col-6">
                         <div className="p-3 bg-light rounded">
                           <i className="fas fa-sign-out-alt text-danger mb-2"></i>
-                          <p className="mb-0 small fw-semibold">"Logout"</p>
-                          <small className="text-muted">Sign out</small>
+                          <p className="mb-0 small fw-semibold">{t.logout}</p>
+                          <small className="text-muted">{t.signOutSmall}</small>
                         </div>
                       </div>
                     </div>

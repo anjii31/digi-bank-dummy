@@ -6,8 +6,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
+import { useLanguage } from '../contexts/LanguageContext';
 
 function ForgotPassword() {
+  const { language } = useLanguage();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -77,6 +79,37 @@ function ForgotPassword() {
     setTimeout(() => setVoiceFeedback(''), 3000);
   };
 
+  const translations = {
+    en: {
+      reset: 'Reset Password',
+      instruction: 'Enter your email to receive reset instructions',
+      email: 'Email address',
+      submit: 'Send Reset Link',
+      security: '256-bit SSL Encryption',
+      voice: 'Voice commands available - Click the microphone button',
+      back: 'Back to Login'
+    },
+    hi: {
+      reset: 'पासवर्ड रीसेट करें',
+      instruction: 'रीसेट निर्देश प्राप्त करने के लिए अपना ईमेल दर्ज करें',
+      email: 'ईमेल पता',
+      submit: 'रीसेट लिंक भेजें',
+      security: '256-बिट SSL एन्क्रिप्शन',
+      voice: 'वॉइस कमांड उपलब्ध हैं - माइक्रोफोन बटन पर क्लिक करें',
+      back: 'लॉगिन पर वापस जाएँ'
+    },
+    mr: {
+      reset: 'पासवर्ड रीसेट करा',
+      instruction: 'रीसेट सूचना मिळवण्यासाठी आपला ईमेल प्रविष्ट करा',
+      email: 'ईमेल पत्ता',
+      submit: 'रीसेट लिंक पाठवा',
+      security: '256-बिट SSL एनक्रिप्शन',
+      voice: 'व्हॉइस कमांड उपलब्ध आहेत - मायक्रोफोन बटणावर क्लिक करा',
+      back: 'लॉगिनवर परत जा'
+    }
+  };
+  const t = translations[language] || translations.en;
+
   return (
     <div className="min-vh-100 d-flex align-items-center justify-content-center bg-gradient-primary" 
          style={{fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'}}>
@@ -99,8 +132,8 @@ function ForgotPassword() {
                   </div>
                 </div>
 
-                <h2 className="text-center mb-4 fw-bold text-dark">Reset Password</h2>
-                <p className="text-center text-muted mb-4">Enter your email to receive reset instructions</p>
+                <h2 className="text-center mb-4 fw-bold text-dark">{t.reset}</h2>
+                <p className="text-center text-muted mb-4">{t.instruction}</p>
 
                 {/* Voice Feedback Alert */}
                 {voiceFeedback && (
@@ -129,7 +162,7 @@ function ForgotPassword() {
                   <div className="mb-4">
                     <label htmlFor="email" className="form-label fw-semibold text-dark">
                       <i className="fas fa-envelope me-2 text-primary"></i>
-                      Email Address
+                      {t.email}
                     </label>
                     <div className="input-group">
                       <span className="input-group-text bg-light border-end-0">
@@ -141,7 +174,7 @@ function ForgotPassword() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="form-control border-start-0" 
-                        placeholder="Enter your email or say 'my email is' followed by your email"
+                        placeholder={`${t.email} or say 'my ${t.email} is' followed by your ${t.email}`}
                         required
                       />
                     </div>
@@ -160,7 +193,7 @@ function ForgotPassword() {
                     ) : (
                       <>
                         <i className="fas fa-paper-plane me-2"></i>
-                        Send Reset Link
+                        {t.submit}
                       </>
                     )}
                   </button>
@@ -168,7 +201,7 @@ function ForgotPassword() {
                   <div className="text-center">
                     <a href="/login" className="text-primary text-decoration-none fw-semibold">
                       <i className="fas fa-arrow-left me-2"></i>
-                      Back to Login
+                      {t.back}
                     </a>
                   </div>
                 </form>
@@ -177,7 +210,7 @@ function ForgotPassword() {
                 <div className="text-center mt-4 pt-3 border-top">
                   <div className="d-flex justify-content-center align-items-center gap-2">
                     <i className="fas fa-shield-alt text-success security-icon"></i>
-                    <small className="text-muted">256-bit SSL Encryption</small>
+                    <small className="text-muted">{t.security}</small>
                   </div>
                 </div>
 
@@ -185,7 +218,7 @@ function ForgotPassword() {
                 <div className="text-center mt-3">
                   <div className="d-flex justify-content-center align-items-center gap-2">
                     <i className="fas fa-microphone text-primary"></i>
-                    <small className="text-muted">Voice commands available - Click the microphone button</small>
+                    <small className="text-muted">{t.voice}</small>
                   </div>
                 </div>
               </div>
