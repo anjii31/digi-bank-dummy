@@ -65,7 +65,7 @@ const stats = [
 ];
 
 const testimonials = [
-  { name: 'Amit S.', text: 'DigiBank made my finances so easy to manage. Highly recommended!' },
+  { name: 'Amit S.', text: 'ArthSetu(Bridge for Finance) made my finances so easy to manage. Highly recommended!' },
   { name: 'Priya K.', text: 'The app is super intuitive and the support is fantastic.' },
   { name: 'Ramesh V.', text: 'I love the investment options and the security features.' },
 ];
@@ -84,6 +84,7 @@ const Home = () => {
   const recognitionRef = useRef(null);
   const autoRestartRef = useRef(true);
   const [showLangModal, setShowLangModal] = useState(true);
+  const [showInfoModal, setShowInfoModal] = useState(false);
 
   useEffect(() => {
     if (!language) {
@@ -173,6 +174,48 @@ const Home = () => {
 
   return (
     <div style={{ textAlign: 'center', marginTop: '2rem', background: '#f6f8fa', minHeight: '100vh' }}>
+      {/* Custom styles for animated welcome banner */}
+      <style>{`
+        .arthsetu-welcome {
+          font-size: 2.7rem;
+          font-weight: 800;
+          background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          text-fill-color: transparent;
+          animation: fadeInWelcome 1.2s cubic-bezier(.4,0,.2,1);
+          position: relative;
+          display: inline-block;
+        }
+        .arthsetu-welcome::after {
+          content: '';
+          display: block;
+          width: 80%;
+          height: 5px;
+          margin: 0.5rem auto 0 auto;
+          border-radius: 3px;
+          background: linear-gradient(90deg, #764ba2 0%, #4facfe 100%);
+          box-shadow: 0 0 16px 2px #764ba288;
+          animation: glowUnderline 1.5s 0.7s both;
+        }
+        @keyframes fadeInWelcome {
+          0% { opacity: 0; transform: translateY(-30px) scale(0.95); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes glowUnderline {
+          0% { width: 0; opacity: 0; }
+          100% { width: 80%; opacity: 1; }
+        }
+        .arthsetu-subtitle {
+          opacity: 0;
+          animation: fadeInSubtitle 1.2s 0.7s forwards;
+        }
+        @keyframes fadeInSubtitle {
+          0% { opacity: 0; transform: translateY(20px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
       {/* Language Selection Modal */}
       {showLangModal && (
         <div className="modal fade show" tabIndex="-1" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}>
@@ -204,15 +247,40 @@ const Home = () => {
         </div>
       )}
 
-      {/* Welcome Banner */}
-      <div className="container mb-5">
-        <div className="py-5 px-3 rounded shadow-sm bg-white" style={{ maxWidth: 700, margin: '0 auto' }}>
-          <h1 className="fw-bold text-primary mb-2">Welcome to DigiBank</h1>
-          <p className="lead text-muted mb-4">Your personal financial guidance app—empowering you to make smarter money decisions, save more, and achieve your financial goals with confidence.</p>
-          <button className="btn btn-primary btn-lg px-4 me-2">Login</button>
-          <button className="btn btn-outline-primary btn-lg px-4">Sign Up</button>
+      {/* Info Modal for Learn More */}
+      {showInfoModal && (
+        <div className="modal fade show" tabIndex="-1" style={{ display: 'block', background: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title text-primary">
+                  <i className="fas fa-info-circle me-2"></i>
+                  More Information
+                </h5>
+                <button type="button" className="btn-close" onClick={() => setShowInfoModal(false)} aria-label="Close"></button>
+              </div>
+              <div className="modal-body">
+                <p className="mb-0">Login for free to check out more details.</p>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-primary" onClick={() => setShowInfoModal(false)}>Close</button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Welcome Banner - only show after language is selected */}
+      {!showLangModal && (
+        <div className="container mb-5">
+          <div className="py-5 px-3 rounded shadow-sm bg-white" style={{ maxWidth: 700, margin: '0 auto' }}>
+            <h1 className="arthsetu-welcome mb-2">Welcome to ArthSetu(Bridge for Finance)</h1>
+            <p className="arthsetu-subtitle lead text-muted mb-4">Your personal financial guidance app—empowering you to make smarter money decisions, save more, and achieve your financial goals with confidence.</p>
+            <button className="btn btn-primary btn-lg px-4 me-2">Login</button>
+            <button className="btn btn-outline-primary btn-lg px-4">Sign Up</button>
+          </div>
+        </div>
+      )}
 
       {/* Features Grid */}
       <div className="container mb-5">
@@ -223,7 +291,7 @@ const Home = () => {
                 <i className={`fas ${f.icon} fa-2x text-primary mb-3`}></i>
                 <h6 className="fw-bold mb-1">{f.title}</h6>
                 <p className="text-muted small mb-2">{f.desc}</p>
-                <button className="btn btn-outline-primary btn-sm mt-auto" style={{ marginTop: 'auto' }} onClick={() => alert('More info coming soon!')}>Learn More</button>
+                <button className="btn btn-outline-primary btn-sm mt-auto" style={{ marginTop: 'auto' }} onClick={() => setShowInfoModal(true)}>Learn More</button>
               </div>
             </div>
           ))}

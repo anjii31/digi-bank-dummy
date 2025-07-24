@@ -145,7 +145,7 @@ function Dashboard() {
                  style={{width: '40px', height: '40px'}}>
               <i className="fas fa-university text-primary"></i>
             </div>
-            <span className="fw-bold">DigiBank</span>
+            <span className="fw-bold">ArthSetu(Bridge for Finance)</span>
           </div>
           
           <div className="navbar-nav ms-auto">
@@ -202,7 +202,7 @@ function Dashboard() {
               <div className="card-body">
                 <h2 className="card-title text-primary mb-3">
                   <i className="fas fa-home me-2"></i>
-                  Welcome to DigiBank
+                  Welcome to ArthSetu(Bridge for Finance)
                 </h2>
                 <p className="card-text text-muted">
                   Hello, {currentUser?.displayName || 'Valued Customer'}! Here's your banking overview.
