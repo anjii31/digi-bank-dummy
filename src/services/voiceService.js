@@ -13,8 +13,21 @@ class VoiceService {
     this.onEndCallback = null;
     this.lastSpokenText = '';
     this.speechTimeout = null;
-    
+    this.language = 'en-US'; // default
     this.initSpeechRecognition();
+  }
+
+  setLanguage(lang) {
+    // Accepts 'en', 'hi', 'mr' and maps to BCP-47 codes
+    const langMap = {
+      en: 'en-US',
+      hi: 'hi-IN',
+      mr: 'mr-IN',
+    };
+    this.language = langMap[lang] || 'en-US';
+    if (this.recognition) {
+      this.recognition.lang = this.language;
+    }
   }
 
   // Initialize speech recognition
@@ -28,7 +41,7 @@ class VoiceService {
         // Configure recognition settings
         this.recognition.continuous = false;
         this.recognition.interimResults = false;
-        this.recognition.lang = 'en-US';
+        this.recognition.lang = this.language;
         this.recognition.maxAlternatives = 1;
         
         // Set up event handlers
@@ -132,7 +145,7 @@ class VoiceService {
 
     try {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
+      utterance.lang = this.language;
       utterance.rate = 0.9; // Slightly slower for clarity
       utterance.pitch = 1.0;
       utterance.volume = 0.8;
@@ -227,7 +240,14 @@ class VoiceService {
     }
     
     // Chatbot commands
-    if (lowerTranscript.includes('chat') || lowerTranscript.includes('assistant') || lowerTranscript.includes('help')) {
+    if (
+      lowerTranscript.includes('chat') ||
+      lowerTranscript.includes('assistant') ||
+      lowerTranscript.includes('help') ||
+      lowerTranscript.includes('मदद') ||
+      lowerTranscript.includes('सहायता') ||
+      lowerTranscript.includes('हेल्प')
+    ) {
       return { action: 'open_chatbot' };
     }
     
@@ -320,38 +340,103 @@ class VoiceService {
   }
 
   // Banking-specific voice prompts
-  getBankingPrompts() {
-    return {
-      login: [
-        "Say 'my email is' followed by your email address",
-        "Say 'my password is' followed by your password",
-        "Say 'login' to submit",
-        "Say 'sign up' to create a new account"
-      ],
-      signup: [
-        "Say 'my name is' followed by your full name",
-        "Say 'my email is' followed by your email address",
-        "Say 'my password is' followed by your password",
-        "Say 'submit' to create account"
-      ],
-      'forgot-password': [
-        "Say 'my email is' followed by your email address",
-        "Say 'submit' to send reset link",
-        "Say 'back' to return to login",
-        "Say 'clear' to clear the form"
-      ],
-      dashboard: [
-        "Say 'open chat' to talk to the assistant",
-        "Say 'logout' to sign out",
-        "Say 'help' for voice commands"
-      ],
-      chatbot: [
-        "Ask me about your account balance",
-        "Say 'transfer money' for transfer options",
-        "Say 'investment options' for investment help",
-        "Say 'card services' for card management"
-      ]
+  getBankingPrompts(lang = 'en') {
+    const prompts = {
+      en: {
+        login: [
+          "Say 'my email is' followed by your email address",
+          "Say 'my password is' followed by your password",
+          "Say 'login' to submit",
+          "Say 'sign up' to create a new account"
+        ],
+        signup: [
+          "Say 'my name is' followed by your full name",
+          "Say 'my email is' followed by your email address",
+          "Say 'my password is' followed by your password",
+          "Say 'submit' to create account"
+        ],
+        'forgot-password': [
+          "Say 'my email is' followed by your email address",
+          "Say 'submit' to send reset link",
+          "Say 'back' to return to login",
+          "Say 'clear' to clear the form"
+        ],
+        dashboard: [
+          "Say 'open chat' to talk to the assistant",
+          "Say 'logout' to sign out",
+          "Say 'help' for voice commands"
+        ],
+        chatbot: [
+          "Ask me about your account balance",
+          "Say 'transfer money' for transfer options",
+          "Say 'investment options' for investment help",
+          "Say 'card services' for card management"
+        ]
+      },
+      hi: {
+        login: [
+          "'मेरा ईमेल है' कहें और फिर अपना ईमेल पता बोलें",
+          "'मेरा पासवर्ड है' कहें और फिर अपना पासवर्ड बोलें",
+          "'लॉगिन' कहें फॉर्म सबमिट करने के लिए",
+          "'पंजीकरण करे' कहें नया खाता बनाने के लिए"
+        ],
+        signup: [
+          "'मेरा नाम है' कहें और फिर अपना पूरा नाम बोलें",
+          "'मेरा ईमेल है' कहें और फिर अपना ईमेल पता बोलें",
+          "'मेरा पासवर्ड है' कहें और फिर अपना पासवर्ड बोलें",
+          "'सबमिट' कहें खाता बनाने के लिए"
+        ],
+        'forgot-password': [
+          "'मेरा ईमेल है' कहें और फिर अपना ईमेल पता बोलें",
+          "'सबमिट' कहें रीसेट लिंक भेजने के लिए",
+          "'वापस' कहें लॉगिन पर लौटने के लिए",
+          "'साफ़ करें' कहें फॉर्म साफ़ करने के लिए"
+        ],
+        dashboard: [
+          "'ओपन चैट' कहें सहायक से बात करने के लिए",
+          "'लॉगआउट' कहें साइन आउट करने के लिए",
+          "'हेल्प' कहें वॉइस कमांड्स के लिए"
+        ],
+        chatbot: [
+          "मुझसे अपने खाते की शेष राशि पूछें",
+          "'पैसे ट्रांसफर करें' कहें ट्रांसफर विकल्पों के लिए",
+          "'निवेश विकल्प' कहें निवेश सहायता के लिए",
+          "'कार्ड सेवाएँ' कहें कार्ड प्रबंधन के लिए"
+        ]
+      },
+      mr: {
+        login: [
+          "'माझा ईमेल आहे' म्हणा आणि नंतर तुमचा ईमेल पत्ता बोला",
+          "'माझा पासवर्ड आहे' म्हणा आणि नंतर तुमचा पासवर्ड बोला",
+          "'लॉगिन' म्हणा फॉर्म सबमिट करण्यासाठी",
+          "'साइन अप' म्हणा नवीन खाते तयार करण्यासाठी"
+        ],
+        signup: [
+          "'माझं नाव आहे' म्हणा आणि नंतर तुमचं पूर्ण नाव बोला",
+          "'माझा ईमेल आहे' म्हणा आणि नंतर तुमचा ईमेल पत्ता बोला",
+          "'माझा पासवर्ड आहे' म्हणा आणि नंतर तुमचा पासवर्ड बोला",
+          "'सबमिट' म्हणा खाते तयार करण्यासाठी"
+        ],
+        'forgot-password': [
+          "'माझा ईमेल आहे' म्हणा आणि नंतर तुमचा ईमेल पत्ता बोला",
+          "'सबमिट' म्हणा रीसेट लिंक पाठवण्यासाठी",
+          "'बॅक' म्हणा लॉगिनवर परत जाण्यासाठी",
+          "'क्लिअर' म्हणा फॉर्म क्लिअर करण्यासाठी"
+        ],
+        dashboard: [
+          "'ओपन चॅट' म्हणा सहाय्यकाशी बोलण्यासाठी",
+          "'लॉगआउट' म्हणा साइन आउट करण्यासाठी",
+          "'हेल्प' म्हणा व्हॉइस कमांडसाठी"
+        ],
+        chatbot: [
+          "माझ्या खात्याच्या शिल्लक रकमेबद्दल विचारा",
+          "'पैसे ट्रान्सफर करा' म्हणा ट्रान्सफर पर्यायांसाठी",
+          "'गुंतवणूक पर्याय' म्हणा गुंतवणूक सहाय्यासाठी",
+          "'कार्ड सेवा' म्हणा कार्ड व्यवस्थापनासाठी"
+        ]
+      }
     };
+    return prompts[lang] || prompts.en;
   }
 }
 

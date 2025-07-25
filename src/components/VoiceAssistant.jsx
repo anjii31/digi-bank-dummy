@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import voiceService from '../services/voiceService';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
+  const { language } = useLanguage();
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -14,16 +16,42 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
   const listenTimeoutRef = useRef(null);
 
   useEffect(() => {
-    // Check if voice features are supported
+    // Set language for voiceService
+    voiceService.setLanguage(language);
     setVoiceSupported(voiceService.isSupported());
     
     // Welcome message for new users
     if (voiceSupported && currentPage === 'login') {
       setTimeout(() => {
-        speak("Welcome to DigiBank. You can use voice commands to navigate and fill forms. Say 'help' for voice commands.");
+        speak(getPrompt('welcome'));
       }, 1000);
     }
-  }, [currentPage, voiceSupported]);
+  }, [currentPage, voiceSupported, language]);
+
+  const translations = {
+    en: {
+      welcome: "Welcome to DigiBank. You can use voice commands to navigate and fill forms. Say 'help' for voice commands.",
+      sorry: "Sorry, I could not understand. Please try again.",
+      listening: "Listening...",
+      processing: "Processing: ",
+      unknown: (result) => `I heard: ${result}. Please try a different command.`
+    },
+    hi: {
+      welcome: "DigiBank में आपका स्वागत है। आप वॉइस कमांड का उपयोग कर सकते हैं। वॉइस कमांड के लिए 'help' कहें।",
+      sorry: "माफ़ कीजिए, मैं समझ नहीं पाया। कृपया पुनः प्रयास करें।",
+      listening: "सुन रहा हूँ...",
+      processing: "प्रसंस्करण: ",
+      unknown: (result) => `मैंने सुना: ${result}. कृपया कोई अन्य कमांड आज़माएँ।`
+    },
+    mr: {
+      welcome: "DigiBank मध्ये आपले स्वागत आहे. आपण व्हॉइस कमांड वापरू शकता. व्हॉइस कमांडसाठी 'help' म्हणा.",
+      sorry: "माफ करा, मी समजू शकलो नाही. कृपया पुन्हा प्रयत्न करा.",
+      listening: "ऐकत आहे...",
+      processing: "प्रक्रिया: ",
+      unknown: (result) => `मी ऐकले: ${result}. कृपया दुसरी कमांड वापरा.`
+    }
+  };
+  const t = translations[language] || translations.en;
 
   const speak = (text) => {
     voiceService.speak(
@@ -41,6 +69,15 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
       },
       (error) => console.error('Speech error:', error)
     );
+  };
+
+  const getPrompt = (type, result) => {
+    if (type === 'welcome') return t.welcome;
+    if (type === 'sorry') return t.sorry;
+    if (type === 'listening') return t.listening;
+    if (type === 'processing') return t.processing;
+    if (type === 'unknown') return t.unknown(result);
+    return '';
   };
 
   const startListening = () => {
@@ -72,9 +109,9 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
         // Provide feedback with delay
         setTimeout(() => {
           if (command.action === 'unknown') {
-            speak(`I heard: ${result}. Please try a different command.`);
+            speak(getPrompt('unknown', result));
           } else {
-            speak(`Processing: ${result}`);
+            speak(getPrompt('processing') + result);
           }
         }, 500);
       },
@@ -82,7 +119,7 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
         console.error('Voice recognition error:', error);
         setIsListening(false);
         setTimeout(() => {
-          speak('Sorry, I could not understand. Please try again.');
+          speak(getPrompt('sorry'));
         }, 500);
       },
       () => {
@@ -110,7 +147,7 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
   };
 
   const getPromptsForPage = () => {
-    const prompts = voiceService.getBankingPrompts();
+    const prompts = voiceService.getBankingPrompts(language);
     return prompts[currentPage] || prompts.login;
   };
 
@@ -189,7 +226,7 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
             title="Voice Commands Help"
           >
             <i className="fas fa-question-circle me-2"></i>
-            Voice Help
+            {t.help}
           </button>
         </div>
       </div>
@@ -202,7 +239,7 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
             <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
               <h5 className="mb-0">
                 <i className="fas fa-microphone me-2"></i>
-                Voice Commands
+                {t.commands}
               </h5>
               <button 
                 className="btn btn-link text-white p-0"
@@ -212,7 +249,7 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
               </button>
             </div>
             <div className="card-body">
-              <h6 className="text-primary mb-3">Available Commands:</h6>
+              <h6 className="text-primary mb-3">{t.available}</h6>
               <ul className="list-unstyled">
                 {getPromptsForPage().map((prompt, index) => (
                   <li key={index} className="mb-2">
@@ -225,7 +262,7 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
               <div className="mt-3 p-3 bg-light rounded">
                 <small className="text-muted">
                   <i className="fas fa-info-circle me-1"></i>
-                  <strong>Tip:</strong> Speak clearly and in a normal volume. The voice assistant will automatically stop listening after 20 seconds.
+                  <strong>{t.tip}:</strong> {t.tipText}
                 </small>
               </div>
             </div>
