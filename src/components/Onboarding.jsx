@@ -2,16 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { useLanguage } from '../contexts/LanguageContext';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
 const steps = [
-  { name: 'User Type', icon: 'fas fa-user', description: 'Tell us about yourself' },
-  { name: 'Goals', icon: 'fas fa-bullseye', description: 'What do you want to achieve?' },
-  { name: 'Income', icon: 'fas fa-money-bill-wave', description: 'Your monthly income' },
-  { name: 'Expenses', icon: 'fas fa-shopping-cart', description: 'Your monthly expenses' },
-  { name: 'Savings', icon: 'fas fa-piggy-bank', description: 'Current savings' },
-  { name: 'Financial Comfort', icon: 'fas fa-graduation-cap', description: 'Your experience level' },
+  { name: 'Basic Info', icon: 'fas fa-user' }, // state, user type, age, gender
+  { name: 'Financial Info', icon: 'fas fa-money-bill-wave' }, // income, expenses, goals, comfort
 ];
 
 const goalSuggestions = [
@@ -47,6 +42,11 @@ const expenseCategories = [
   'Other'
 ];
 
+// Add Indian states array
+const indianStates = [
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
+];
+
 const initialProfile = {
   userType: '',
   goals: '',
@@ -57,9 +57,18 @@ const initialProfile = {
 };
 
 function Onboarding() {
-  const { language } = useLanguage();
   const [step, setStep] = useState(0);
-  const [profile, setProfile] = useState(initialProfile);
+  // Update profile state to include new fields and remove savings/old expenses
+  const [profile, setProfile] = useState({
+    state: '',
+    userType: '',
+    age: '',
+    gender: '',
+    goals: '',
+    bplCategory: '',
+    income: '',
+    savings: '',
+  });
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState('');
@@ -69,62 +78,6 @@ function Onboarding() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
-<<<<<<< HEAD
-  const translations = {
-    en: {
-      complete: 'Complete Your Profile',
-      step: 'Step',
-      of: 'of',
-      profileSaved: 'Profile saved! Redirecting...',
-      profileUpdated: 'Profile updated! Redirecting...',
-      goDashboard: 'Go to Dashboard',
-      userType: 'What type of user are you?',
-      chooseType: 'Choose your type...',
-      individual: 'Individual',
-      shg: 'SHG Group Member',
-      vendor: 'Small Vendor/Business Owner',
-      artisan: 'Artisan/Craftsman',
-      farmer: 'Farmer',
-      other: 'Other',
-      help: 'This helps us provide personalized recommendations for your financial journey.'
-    },
-    hi: {
-      complete: 'अपनी प्रोफ़ाइल पूरी करें',
-      step: 'चरण',
-      of: 'में से',
-      profileSaved: 'प्रोफ़ाइल सहेजी गई! पुनः निर्देशित किया जा रहा है...',
-      profileUpdated: 'प्रोफ़ाइल अपडेट की गई! पुनः निर्देशित किया जा रहा है...',
-      goDashboard: 'डैशबोर्ड पर जाएं',
-      userType: 'आप किस प्रकार के उपयोगकर्ता हैं?',
-      chooseType: 'अपना प्रकार चुनें...',
-      individual: 'व्यक्ति',
-      shg: 'SHG समूह सदस्य',
-      vendor: 'छोटे विक्रेता/व्यवसाय मालिक',
-      artisan: 'कारीगर/शिल्पकार',
-      farmer: 'किसान',
-      other: 'अन्य',
-      help: 'यह हमें आपकी वित्तीय यात्रा के लिए व्यक्तिगत अनुशंसाएँ प्रदान करने में मदद करता है।'
-    },
-    mr: {
-      complete: 'तुमची प्रोफाइल पूर्ण करा',
-      step: 'पायरी',
-      of: 'पैकी',
-      profileSaved: 'प्रोफाइल जतन केली! पुनर्निर्देशित केले जात आहे...',
-      profileUpdated: 'प्रोफाइल अपडेट केली! पुनर्निर्देशित केले जात आहे...',
-      goDashboard: 'डॅशबोर्डकडे जा',
-      userType: 'आपण कोणत्या प्रकारचे वापरकर्ता आहात?',
-      chooseType: 'तुमचा प्रकार निवडा...',
-      individual: 'वैयक्तिक',
-      shg: 'SHG गट सदस्य',
-      vendor: 'लहान विक्रेता/व्यवसाय मालक',
-      artisan: 'कारागीर/शिल्पकार',
-      farmer: 'शेतकरी',
-      other: 'इतर',
-      help: 'हे आम्हाला तुमच्या आर्थिक प्रवासासाठी वैयक्तिकृत शिफारसी देण्यास मदत करते.'
-    }
-  };
-  const t = translations[language] || translations.en;
-=======
   // Language selection state
   const [language, setLanguage] = useState('');
   const [listening, setListening] = useState(false);
@@ -180,7 +133,6 @@ function Onboarding() {
       setListening(false);
     };
   };
->>>>>>> c97d56c0b8532af1c37cd23d38c49fd747fbcef0
 
   // Prefill onboarding form with existing profile
   useEffect(() => {
@@ -239,10 +191,18 @@ function Onboarding() {
     setUpdated(false);
     try {
       // Only update fields that are not empty
-      const filteredProfile = Object.fromEntries(
-        Object.entries(profile).filter(([_, v]) => v !== '' && v !== undefined)
-      );
+      const filteredProfile = {
+        state: profile.state,
+        userType: profile.userType,
+        age: profile.age,
+        gender: profile.gender,
+        goals: profile.goals,
+        bplCategory: profile.bplCategory,
+        income: profile.income,
+        savings: profile.savings,
+      };
       await setDoc(doc(db, 'users', currentUser.uid), filteredProfile, { merge: true });
+      await updateDoc(doc(db, 'users', currentUser.uid), { onboardingComplete: true });
       // If already had a profile, show 'Profile updated!', else show 'Profile saved!'
       const docSnap = await getDoc(doc(db, 'users', currentUser.uid));
       if (docSnap.exists()) {
@@ -250,7 +210,7 @@ function Onboarding() {
       } else {
         setSuccess(true);
       }
-      setTimeout(() => navigate('/welcome'), 1200);
+      setTimeout(() => navigate('/dashboard'), 1200);
     } catch (err) {
       setError('Failed to save profile: ' + err.message);
     }
@@ -300,7 +260,7 @@ function Onboarding() {
       <div className="mb-4 text-center">
         <h2 className="fw-bold text-primary mb-3">
           <i className="fas fa-user-plus me-2"></i>
-          {t.complete}
+          Complete Your Profile
         </h2>
         <div className="progress my-4" style={{height: '10px'}}>
           <div 
@@ -322,7 +282,7 @@ function Onboarding() {
         </div>
         <div className="mb-3">
           <span className="badge bg-primary bg-opacity-10 text-primary px-4 py-2 fs-6">
-            <i className={steps[step].icon}></i> {t.step} {step + 1} {t.of} {steps.length}: {steps[step].name}
+            <i className={steps[step].icon}></i> Step {step + 1} of {steps.length}: {steps[step].name}
           </span>
         </div>
         <p className="text-muted">{steps[step].description}</p>
@@ -333,10 +293,10 @@ function Onboarding() {
         <div className="text-center my-4">
           <div className="alert alert-success" role="alert">
             <i className="fas fa-check-circle me-2"></i>
-            {t.profileSaved}
+            Profile saved! Redirecting...
           </div>
           <button className="btn btn-success btn-lg px-5 fw-bold mt-3" onClick={() => navigate('/dashboard')}>
-            {t.goDashboard} <i className="fas fa-arrow-right ms-2"></i>
+            Go to Dashboard <i className="fas fa-arrow-right ms-2"></i>
           </button>
         </div>
       )}
@@ -344,10 +304,10 @@ function Onboarding() {
         <div className="text-center my-4">
           <div className="alert alert-info" role="alert">
             <i className="fas fa-sync-alt me-2"></i>
-            {t.profileUpdated}
+            Profile updated! Redirecting...
           </div>
           <button className="btn btn-success btn-lg px-5 fw-bold mt-3" onClick={() => navigate('/dashboard')}>
-            {t.goDashboard} <i className="fas fa-arrow-right ms-2"></i>
+            Go to Dashboard <i className="fas fa-arrow-right ms-2"></i>
           </button>
         </div>
       )}
@@ -355,29 +315,73 @@ function Onboarding() {
       <div className="card p-5 mb-4 shadow-sm border-0" data-step={step}>
         {step === 0 && (
           <div>
+            <label htmlFor="state" className="form-label fw-semibold text-dark mb-3">
+              <i className="fas fa-map-marker-alt me-2 text-primary"></i>
+              Which state do you live in?
+            </label>
+            <select
+              className="form-select form-select-lg mb-3"
+              value={profile.state}
+              onChange={e => handleChange('state', e.target.value)}
+              id="state"
+              required
+            >
+              <option value="">Select your state...</option>
+              {indianStates.map(state => (
+                <option key={state} value={state}>{state}</option>
+              ))}
+            </select>
+
             <label htmlFor="userType" className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-user me-2 text-primary"></i>
-              {t.userType}
+              What type of user are you?
             </label>
-            <select 
-              className="form-select form-select-lg" 
-              value={profile.userType} 
+            <select
+              className="form-select form-select-lg mb-3"
+              value={profile.userType}
               onChange={e => handleChange('userType', e.target.value)}
-              onKeyPress={handleKeyPress}
               id="userType"
-              aria-describedby="userTypeHelp"
+              required
             >
-              <option value="">{t.chooseType}</option>
-              <option value="individual">{t.individual}</option>
-              <option value="shg">{t.shg}</option>
-              <option value="vendor">{t.vendor}</option>
-              <option value="artisan">{t.artisan}</option>
-              <option value="farmer">{t.farmer}</option>
-              <option value="other">{t.other}</option>
+              <option value="">Choose your type...</option>
+              <option value="individual">Individual</option>
+              <option value="vendor">Micro and small entrepreneurs</option>
+              <option value="community">Community helpers</option>
+              <option value="farmer">Farmer</option>
+              <option value="other">Other</option>
             </select>
-            <div id="userTypeHelp" className="form-text">
-              {t.help}
-            </div>
+
+            <label htmlFor="age" className="form-label fw-semibold text-dark mb-3">
+              <i className="fas fa-birthday-cake me-2 text-primary"></i>
+              What is your age?
+            </label>
+            <input
+              type="number"
+              className="form-control form-control-lg mb-3"
+              value={profile.age}
+              onChange={e => handleChange('age', e.target.value)}
+              id="age"
+              min="10"
+              max="120"
+              required
+            />
+
+            <label htmlFor="gender" className="form-label fw-semibold text-dark mb-3">
+              <i className="fas fa-venus-mars me-2 text-primary"></i>
+              What is your gender?
+            </label>
+            <select
+              className="form-select form-select-lg mb-3"
+              value={profile.gender}
+              onChange={e => handleChange('gender', e.target.value)}
+              id="gender"
+              required
+            >
+              <option value="">Select gender...</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
           </div>
         )}
         
@@ -387,171 +391,70 @@ function Onboarding() {
               <i className="fas fa-bullseye me-2 text-primary"></i>
               What are your main financial goals?
             </label>
-            <div className="mb-3">
-              <input 
-                className="form-control form-control-lg" 
-                value={profile.goals} 
-                onChange={e => handleChange('goals', e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="e.g., Save for new equipment, expand my business..."
-                id="goals"
-                aria-describedby="goalsHelp"
-              />
-            </div>
-            <div className="mb-3">
-              <button 
-                type="button" 
-                className="btn btn-outline-primary btn-sm"
-                onClick={() => setShowGoalSuggestions(!showGoalSuggestions)}
-                aria-expanded={showGoalSuggestions}
-              >
-                <i className="fas fa-lightbulb me-2"></i>
-                {showGoalSuggestions ? 'Hide' : 'Show'} Goal Suggestions
-              </button>
-            </div>
-            {showGoalSuggestions && (
-              <div className="row g-2 mb-3">
-                {goalSuggestions.map((goal, idx) => (
-                  <div key={idx} className="col-md-6">
-                    <button 
-                      type="button" 
-                      className="btn btn-outline-secondary w-100 text-start"
-                      onClick={() => handleChange('goals', goal)}
-                    >
-                      {goal}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div id="goalsHelp" className="form-text">
-              Be specific about what you want to achieve financially.
-            </div>
-          </div>
-        )}
-        
-        {step === 2 && (
-          <div>
+            <input
+              className="form-control form-control-lg mb-3"
+              value={profile.goals}
+              onChange={e => handleChange('goals', e.target.value)}
+              id="goals"
+              required
+            />
+
             <label htmlFor="income" className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-money-bill-wave me-2 text-primary"></i>
               What is your average monthly income?
             </label>
-            <div className="input-group input-group-lg">
-              <span className="input-group-text">₹</span>
-              <input 
-                type="number" 
-                className="form-control" 
-                value={profile.income} 
-                onChange={e => handleChange('income', e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="e.g., 15000"
-                id="income"
-                aria-describedby="incomeHelp"
-              />
-            </div>
-            <div className="mt-3">
-              <label className="form-label fw-semibold text-dark mb-2">Income Source (Optional):</label>
-              <select 
-                className="form-select"
-                onChange={e => handleChange('incomeSource', e.target.value)}
-                value={profile.incomeSource || ''}
-              >
-                <option value="">Select income source...</option>
-                {incomeCategories.map((category, idx) => (
-                  <option key={idx} value={category}>{category}</option>
-                ))}
-              </select>
-            </div>
-            <div id="incomeHelp" className="form-text">
-              This helps us understand your financial situation better.
-            </div>
-          </div>
-        )}
-        
-        {step === 3 && (
-          <div>
-            <label htmlFor="expenses" className="form-label fw-semibold text-dark mb-3">
-              <i className="fas fa-shopping-cart me-2 text-primary"></i>
-              What are your average monthly expenses?
-            </label>
-            <div className="input-group input-group-lg">
-              <span className="input-group-text">₹</span>
-              <input 
-                type="number" 
-                className="form-control" 
-                value={profile.expenses} 
-                onChange={e => handleChange('expenses', e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="e.g., 12000"
-                id="expenses"
-                aria-describedby="expensesHelp"
-              />
-            </div>
-            <div className="mt-3">
-              <label className="form-label fw-semibold text-dark mb-2">Main Expense Categories (Optional):</label>
-              <select 
-                className="form-select"
-                onChange={e => handleChange('expenseCategory', e.target.value)}
-                value={profile.expenseCategory || ''}
-              >
-                <option value="">Select main expense category...</option>
-                {expenseCategories.map((category, idx) => (
-                  <option key={idx} value={category}>{category}</option>
-                ))}
-              </select>
-            </div>
-            <div id="expensesHelp" className="form-text">
-              Include all regular expenses like food, transport, utilities, etc.
-            </div>
-          </div>
-        )}
-        
-        {step === 4 && (
-          <div>
+            <input
+              type="number"
+              className="form-control form-control-lg mb-3"
+              value={profile.income}
+              onChange={e => handleChange('income', e.target.value)}
+              id="income"
+              min="0"
+              required
+            />
             <label htmlFor="savings" className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-piggy-bank me-2 text-primary"></i>
-              How much do you currently have in savings?
+              What are your average monthly savings?
             </label>
-            <div className="input-group input-group-lg">
-              <span className="input-group-text">₹</span>
-              <input 
-                type="number" 
-                className="form-control" 
-                value={profile.savings} 
-                onChange={e => handleChange('savings', e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="e.g., 5000"
-                id="savings"
-                aria-describedby="savingsHelp"
-              />
-            </div>
-            <div id="savingsHelp" className="form-text">
-              This includes cash, bank savings, and any other liquid assets.
-            </div>
-          </div>
-        )}
-        
-        {step === 5 && (
-          <div>
-            <label htmlFor="comfort" className="form-label fw-semibold text-dark mb-3">
-              <i className="fas fa-graduation-cap me-2 text-primary"></i>
-              How comfortable are you with financial concepts?
+            <input
+              type="number"
+              className="form-control form-control-lg mb-3"
+              value={profile.savings}
+              onChange={e => handleChange('savings', e.target.value)}
+              id="savings"
+              min="0"
+              required
+            />
+
+            <label className="form-label fw-semibold text-dark mb-3">
+              <i className="fas fa-id-card me-2 text-primary"></i>
+              Do you belong to BPL category?
             </label>
-            <select 
-              className="form-select form-select-lg" 
-              value={profile.comfort} 
-              onChange={e => handleChange('comfort', e.target.value)}
-              onKeyPress={handleKeyPress}
-              id="comfort"
-              aria-describedby="comfortHelp"
-            >
-              <option value="">Select your comfort level...</option>
-              <option value="beginner">Beginner - I'm new to financial planning</option>
-              <option value="intermediate">Intermediate - I know some basics</option>
-              <option value="advanced">Advanced - I'm experienced with finances</option>
-            </select>
-            <div id="comfortHelp" className="form-text">
-              This helps us provide appropriate guidance and education materials.
+            <div className="mb-3 d-flex gap-4 align-items-center justify-content-start">
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="bplCategory"
+                  id="bplYes"
+                  value="yes"
+                  checked={profile.bplCategory === 'yes'}
+                  onChange={e => handleChange('bplCategory', e.target.value)}
+                />
+                <label className="form-check-label" htmlFor="bplYes">Yes</label>
+              </div>
+              <div className="form-check">
+                <input
+                  className="form-check-input"
+                  type="radio"
+                  name="bplCategory"
+                  id="bplNo"
+                  value="no"
+                  checked={profile.bplCategory === 'no'}
+                  onChange={e => handleChange('bplCategory', e.target.value)}
+                />
+                <label className="form-check-label" htmlFor="bplNo">No</label>
+              </div>
             </div>
           </div>
         )}
@@ -605,7 +508,7 @@ function Onboarding() {
           onClick={() => navigate('/dashboard')}
           aria-label="Go to dashboard"
         >
-          {t.goDashboard} <i className="fas fa-arrow-right ms-2"></i>
+          Go to Dashboard <i className="fas fa-arrow-right ms-2"></i>
         </button>
       </div>
     </div>

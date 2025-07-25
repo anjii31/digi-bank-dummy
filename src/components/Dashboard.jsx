@@ -9,7 +9,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { useLanguage } from '../contexts/LanguageContext';
+import govtSchemeVideos from '../data/govtSchemeVideos';
 
 function Dashboard() {
   const { currentUser, logout } = useAuth();
@@ -21,62 +21,6 @@ function Dashboard() {
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [recommendations, setRecommendations] = useState([]);
-  const { language } = useLanguage();
-
-  const translations = {
-    en: {
-      welcome: 'Welcome to DigiBank',
-      overview: `Hello, {name}! Here's your banking overview.`,
-      updateProfile: 'Update Profile / Onboarding',
-      viewWelcome: 'View Welcome & Recommendations',
-      voice: 'Voice commands available - Try "open chat" or "logout"',
-      profile: 'Profile',
-      settings: 'Settings',
-      signOut: 'Sign Out',
-      signingOut: 'Signing Out...',
-      assistant: 'Voice Assistant Available',
-      assistantDesc: 'Use voice commands to navigate and interact with your banking dashboard. Click the microphone button in the top-right corner to get started.',
-      openChat: '"Open chat"',
-      talk: 'Talk to assistant',
-      logout: '"Logout"',
-      signOutSmall: 'Sign out'
-    },
-    hi: {
-      welcome: 'DigiBank में आपका स्वागत है',
-      overview: 'नमस्ते, {name}! यह है आपका बैंकिंग अवलोकन।',
-      updateProfile: 'प्रोफ़ाइल अपडेट करें / ऑनबोर्डिंग',
-      viewWelcome: 'स्वागत और अनुशंसाएँ देखें',
-      voice: 'वॉइस कमांड उपलब्ध हैं - "open chat" या "logout" आज़माएँ',
-      profile: 'प्रोफ़ाइल',
-      settings: 'सेटिंग्स',
-      signOut: 'साइन आउट',
-      signingOut: 'साइन आउट हो रहा है...',
-      assistant: 'वॉइस असिस्टेंट उपलब्ध',
-      assistantDesc: 'अपने बैंकिंग डैशबोर्ड में नेविगेट और इंटरैक्ट करने के लिए वॉइस कमांड का उपयोग करें। शुरू करने के लिए ऊपर दाएँ कोने में माइक्रोफोन बटन पर क्लिक करें।',
-      openChat: '"Open chat"',
-      talk: 'सहायक से बात करें',
-      logout: '"Logout"',
-      signOutSmall: 'साइन आउट'
-    },
-    mr: {
-      welcome: 'DigiBank मध्ये आपले स्वागत आहे',
-      overview: 'नमस्कार, {name}! हे आहे तुमचे बँकिंग अवलोकन.',
-      updateProfile: 'प्रोफाइल अपडेट करा / ऑनबोर्डिंग',
-      viewWelcome: 'स्वागत आणि शिफारसी पहा',
-      voice: 'व्हॉइस कमांड उपलब्ध आहेत - "open chat" किंवा "logout" वापरा',
-      profile: 'प्रोफाइल',
-      settings: 'सेटिंग्ज',
-      signOut: 'साइन आउट',
-      signingOut: 'साइन आउट होत आहे...',
-      assistant: 'व्हॉइस सहाय्यक उपलब्ध',
-      assistantDesc: 'तुमच्या बँकिंग डॅशबोर्डमध्ये नेव्हिगेट आणि संवाद साधण्यासाठी व्हॉइस कमांड वापरा. सुरू करण्यासाठी वर उजव्या कोपर्यातील मायक्रोफोन बटणावर क्लिक करा.',
-      openChat: '"Open chat"',
-      talk: 'सहाय्यकाशी बोला',
-      logout: '"Logout"',
-      signOutSmall: 'साइन आउट'
-    }
-  };
-  const t = translations[language] || translations.en;
 
   // Fetch onboarding profile from Firestore
   useEffect(() => {
@@ -192,276 +136,186 @@ function Dashboard() {
     setTimeout(() => setVoiceFeedback(''), 3000);
   };
 
+  // After the welcome section, add the filtered video cards
+  const filteredVideos = profile ? govtSchemeVideos.filter(v =>
+    v.userType.toLowerCase() === profile.userType?.toLowerCase()
+  ) : [];
+
   return (
-    <div className="min-vh-100 bg-light">
-      {/* Navigation Header */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow">
-        <div className="container">
-          <div className="navbar-brand d-flex align-items-center">
-            <div className="bg-white rounded-circle d-flex align-items-center justify-content-center me-3" 
-                 style={{width: '40px', height: '40px'}}>
-              <i className="fas fa-university text-primary"></i>
+    <div style={{ position: 'relative', minHeight: '100vh', width: '100vw', overflow: 'hidden' }}>
+      {/* Fullscreen background image and overlay */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 0,
+        background: `linear-gradient(rgba(246,248,250,0.7), rgba(246,248,250,0.7)), url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat fixed`,
+        backdropFilter: 'blur(2px)',
+        WebkitBackdropFilter: 'blur(2px)'
+      }} />
+      {/* Main content */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        {/* Navigation Header */}
+        <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+          <div className="container">
+            <div className="navbar-brand d-flex align-items-center">
+              <div className="bg-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                   style={{width: '40px', height: '40px'}}>
+                <i className="fas fa-university text-primary"></i>
+              </div>
+              <span className="fw-bold">ArthSetu(Bridge for Finance)</span>
             </div>
-            <span className="fw-bold">DigiBank</span>
+            
+            <div className="navbar-nav ms-auto">
+              <div className="nav-item dropdown">
+                <a className="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                  <i className="fas fa-user-circle me-2"></i>
+                  {currentUser?.displayName || currentUser?.email}
+                </a>
+                <ul className="dropdown-menu">
+                  <li><a className="dropdown-item" href="#"><i className="fas fa-user me-2"></i>Profile</a></li>
+                  <li><a className="dropdown-item" href="#"><i className="fas fa-cog me-2"></i>Settings</a></li>
+                  <li><hr className="dropdown-divider" /></li>
+                  <li>
+                    <button 
+                      className="dropdown-item text-danger" 
+                      onClick={handleLogout}
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          Signing Out...
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-sign-out-alt me-2"></i>
+                          Sign Out
+                        </>
+                      )}
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
-          
-          <div className="navbar-nav ms-auto">
-            <div className="nav-item dropdown">
-              <a className="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-                <i className="fas fa-user-circle me-2"></i>
-                {currentUser?.displayName || currentUser?.email}
-              </a>
-              <ul className="dropdown-menu">
-                <li><a className="dropdown-item" href="#"><i className="fas fa-user me-2"></i>Profile</a></li>
-                <li><a className="dropdown-item" href="#"><i className="fas fa-cog me-2"></i>Settings</a></li>
-                <li><hr className="dropdown-divider" /></li>
-                <li>
-                  <button 
-                    className="dropdown-item text-danger" 
-                    onClick={handleLogout}
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Signing Out...
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-sign-out-alt me-2"></i>
-                        Sign Out
-                      </>
-                    )}
+        </nav>
+
+        {/* Voice Feedback Alert */}
+        {voiceFeedback && (
+          <div className="position-fixed top-0 start-50 translate-middle-x mt-5" style={{ zIndex: 1000 }}>
+            <div className="alert alert-info alert-dismissible fade show" role="alert">
+              <i className="fas fa-microphone me-2"></i>
+              {voiceFeedback}
+              <button type="button" className="btn-close" onClick={() => setVoiceFeedback('')}></button>
+            </div>
+          </div>
+        )}
+
+        {/* Welcome Section */}
+        <div className="container py-4">
+          <div className="row">
+            <div className="col-12 mb-4">
+              <div className="card border-0 shadow-sm" style={{ background: 'rgba(255,255,255,0)', border: 'none', boxShadow: '0 4px 24px 0 rgba(0,0,0,0.10)' }}>
+                <div className="card-body">
+                  <h2 className="card-title text-primary mb-3">
+                    <i className="fas fa-home me-2"></i>
+                    Welcome to ArthSetu(Bridge for Finance)
+                  </h2>
+                  <button className="btn btn-outline-primary me-2" onClick={() => navigate('/onboarding')}>
+                    <i className="fas fa-user-edit me-2"></i>
+                    Update Profile / Onboarding
                   </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Voice Feedback Alert */}
-      {voiceFeedback && (
-        <div className="position-fixed top-0 start-50 translate-middle-x mt-5" style={{ zIndex: 1000 }}>
-          <div className="alert alert-info alert-dismissible fade show" role="alert">
-            <i className="fas fa-microphone me-2"></i>
-            {voiceFeedback}
-            <button type="button" className="btn-close" onClick={() => setVoiceFeedback('')}></button>
-          </div>
-        </div>
-      )}
-
-      {/* Welcome Section */}
-      <div className="container py-4">
-        <div className="row">
-          <div className="col-12 mb-4">
-            <div className="card border-0 shadow-sm">
-              <div className="card-body">
-                <h2 className="card-title text-primary mb-3">
-                  <i className="fas fa-home me-2"></i>
-                  {t.welcome}
-                </h2>
-                <p className="card-text text-muted">
-                  {t.overview.replace('{name}', currentUser?.displayName || 'Valued Customer')}
-                </p>
-                <div className="d-flex align-items-center gap-2 mb-3">
-                  <i className="fas fa-microphone text-primary"></i>
-                  <small className="text-muted">{t.voice}</small>
-                </div>
-                <button className="btn btn-outline-primary me-2" onClick={() => navigate('/onboarding')}>
-                  <i className="fas fa-user-edit me-2"></i>
-                  {t.updateProfile}
-                </button>
-                <button className="btn btn-outline-success" onClick={() => navigate('/welcome')}>
-                  <i className="fas fa-star me-2"></i>
-                  {t.viewWelcome}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Account Balance */}
-          <div className="col-md-6 col-lg-4 mb-4">
-            <div className="card border-0 shadow-sm h-100">
-              <div className="card-body">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5 className="card-title mb-0">
-                    <i className="fas fa-wallet text-primary me-2"></i>
-                    Account Balance
-                  </h5>
-                  <i className="fas fa-ellipsis-v text-muted"></i>
-                </div>
-                <h3 className="text-success fw-bold">$24,567.89</h3>
-                <p className="text-muted small mb-0">
-                  <i className="fas fa-arrow-up text-success me-1"></i>
-                  +$1,234.56 this month
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Transactions */}
-          <div className="col-md-6 col-lg-4 mb-4">
-            <div className="card border-0 shadow-sm h-100">
-              <div className="card-body">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5 className="card-title mb-0">
-                    <i className="fas fa-exchange-alt text-primary me-2"></i>
-                    Recent Transactions
-                  </h5>
-                  <a href="#" className="text-primary text-decoration-none small">View All</a>
-                </div>
-                <div className="space-y-2">
-                  <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                    <div>
-                      <p className="mb-0 fw-semibold">Netflix Subscription</p>
-                      <small className="text-muted">Today, 2:30 PM</small>
-                    </div>
-                    <span className="text-danger fw-bold">-$15.99</span>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                    <div>
-                      <p className="mb-0 fw-semibold">Salary Deposit</p>
-                      <small className="text-muted">Yesterday, 9:00 AM</small>
-                    </div>
-                    <span className="text-success fw-bold">+$3,500.00</span>
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center py-2">
-                    <div>
-                      <p className="mb-0 fw-semibold">Grocery Store</p>
-                      <small className="text-muted">2 days ago</small>
-                    </div>
-                    <span className="text-danger fw-bold">-$89.45</span>
-                  </div>
+                  <button className="btn btn-outline-success" onClick={() => navigate('/welcome')}>
+                    <i className="fas fa-star me-2"></i>
+                    View Welcome & Recommendations
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Quick Actions */}
-          <div className="col-md-6 col-lg-4 mb-4">
-            <div className="card border-0 shadow-sm h-100">
-              <div className="card-body">
-                <h5 className="card-title mb-3">
-                  <i className="fas fa-bolt text-primary me-2"></i>
-                  Quick Actions
-                </h5>
-                <div className="row g-2">
-                  <div className="col-6">
-                    <button className="btn btn-outline-primary w-100 py-3">
-                      <i className="fas fa-paper-plane mb-2 d-block"></i>
-                      Send Money
-                    </button>
-                  </div>
-                  <div className="col-6">
-                    <button className="btn btn-outline-success w-100 py-3">
-                      <i className="fas fa-plus mb-2 d-block"></i>
-                      Add Money
-                    </button>
-                  </div>
-                  <div className="col-6">
-                    <button className="btn btn-outline-info w-100 py-3">
-                      <i className="fas fa-credit-card mb-2 d-block"></i>
-                      Pay Bills
-                    </button>
-                  </div>
-                  <div className="col-6">
-                    <button className="btn btn-outline-warning w-100 py-3">
-                      <i className="fas fa-chart-line mb-2 d-block"></i>
-                      Investments
-                    </button>
-                  </div>
+            {/* Personal Planner Card */}
+            <div className="col-12 mb-4">
+              <div
+                className="card border-0 shadow-sm"
+                style={{
+                  cursor: 'pointer',
+                  background: 'linear-gradient(120deg, rgba(123,67,151,0.65) 0%, rgba(220,36,48,0.55) 100%)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  borderRadius: 20,
+                  boxShadow: '0 8px 32px 0 rgba(31,38,135,0.18)',
+                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.18)'
+                }}
+                onClick={() => navigate('/investment-planner')}
+              >
+                <div className="card-body d-flex flex-column align-items-center justify-content-center py-5">
+                  <i className="fas fa-calendar-check fa-2x mb-3" style={{ color: '#fff' }}></i>
+                  <h4 className="fw-bold mb-2" style={{ color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.18)' }}>Get your own personal planner</h4>
+                  <button
+                    className="btn btn-light btn-lg mt-2"
+                    style={{ color: '#7b4397', fontWeight: 700 }}
+                    onClick={e => { e.stopPropagation(); navigate('/investment-planner'); }}
+                  >
+                    Go to Investment Planner
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Security Status */}
-          <div className="col-12 mb-4">
-            <div className="card border-0 shadow-sm">
-              <div className="card-body">
-                <h5 className="card-title mb-3">
-                  <i className="fas fa-shield-alt text-success me-2"></i>
-                  Security Status
-                </h5>
-                <div className="row">
-                  <div className="col-md-3 mb-3">
-                    <div className="d-flex align-items-center">
-                      <i className="fas fa-check-circle text-success me-2"></i>
-                      <span>2FA Enabled</span>
-                    </div>
-                  </div>
-                  <div className="col-md-3 mb-3">
-                    <div className="d-flex align-items-center">
-                      <i className="fas fa-check-circle text-success me-2"></i>
-                      <span>SSL Secure</span>
-                    </div>
-                  </div>
-                  <div className="col-md-3 mb-3">
-                    <div className="d-flex align-items-center">
-                      <i className="fas fa-check-circle text-success me-2"></i>
-                      <span>Account Locked</span>
-                    </div>
-                  </div>
-                  <div className="col-md-3 mb-3">
-                    <div className="d-flex align-items-center">
-                      <i className="fas fa-exclamation-triangle text-warning me-2"></i>
-                      <span>Update Password</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Voice Assistant Info */}
-          <div className="col-12">
-            <div className="card border-0 shadow-sm">
-              <div className="card-body text-center">
-                <h6 className="text-primary mb-3">
-                  <i className="fas fa-microphone me-2"></i>
-                  {t.assistant}
-                </h6>
-                <p className="text-muted mb-3">
-                  {t.assistantDesc}
-                </p>
-                <div className="row justify-content-center">
-                  <div className="col-md-8">
-                    <div className="row g-2">
-                      <div className="col-6">
-                        <div className="p-3 bg-light rounded">
-                          <i className="fas fa-comments text-primary mb-2"></i>
-                          <p className="mb-0 small fw-semibold">{t.openChat}</p>
-                          <small className="text-muted">{t.talk}</small>
-                        </div>
-                      </div>
-                      <div className="col-6">
-                        <div className="p-3 bg-light rounded">
-                          <i className="fas fa-sign-out-alt text-danger mb-2"></i>
-                          <p className="mb-0 small fw-semibold">{t.logout}</p>
-                          <small className="text-muted">{t.signOutSmall}</small>
+            {/* Government Scheme Videos */}
+            {filteredVideos.length > 0 && (
+              <div className="col-12 mb-4">
+                <h4 className="fw-bold text-primary mb-3">Government Schemes for You</h4>
+                <div className="row g-4">
+                  {filteredVideos.map((video, idx) => (
+                    <div className="col-md-4" key={video.youtubeId + idx}>
+                      <div
+                        className="card h-100 shadow-sm"
+                        style={{
+                          background: 'rgba(40, 44, 52, 0.85)',
+                          border: '1px solid #343a40',
+                          boxShadow: '0 8px 32px 0 rgba(0,0,0,0.25), 0 1.5px 6px 0 rgba(0,0,0,0.18)',
+                          borderRadius: 16,
+                          color: '#fff'
+                        }}
+                      >
+                        <div className="card-body">
+                          <h6 className="fw-bold mb-2 text-info" style={{ color: '#fff' }}>{video.govtScheme}</h6>
+                          <div className="ratio ratio-16x9 mb-2">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${video.youtubeId}`}
+                              title={video.govtScheme}
+                              allowFullScreen
+                            ></iframe>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Remove Security Status and Voice Assistant Info cards */}
           </div>
         </div>
+
+        {/* Chatbot Component */}
+        <Chatbot 
+          isOpen={chatbotOpen}
+          onToggle={setChatbotOpen}
+        />
+
+        {/* Voice Assistant Component */}
+        <VoiceAssistant 
+          onVoiceCommand={handleVoiceCommand}
+          currentPage="dashboard"
+        />
       </div>
-
-      {/* Chatbot Component */}
-      <Chatbot 
-        isOpen={chatbotOpen}
-        onToggle={setChatbotOpen}
-      />
-
-      {/* Voice Assistant Component */}
-      <VoiceAssistant 
-        onVoiceCommand={handleVoiceCommand}
-        currentPage="dashboard"
-      />
     </div>
   );
 }

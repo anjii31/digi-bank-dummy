@@ -1,40 +1,40 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getFreeAIResponse, isFreeAIAvailable } from '../services/freeAIService';
+import { isFreeAIAvailable } from '../services/freeAIService';
+import { sendMessageToVertexAI } from '../services/vertexAIChatService';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
-import { useLanguage } from '../contexts/LanguageContext';
+import { navbarLanguage } from './Navbar';
+
+
+// Helper to render bot message text with bullets/numbered points as a list
+function renderChatbotText(text) {
+  if (!text) return null;
+  const lines = text.split('\n').filter(line => line.trim() !== '');
+  // Detect if most lines are bullets or numbers
+  const isBullet = lines.filter(line => /^(\s*[-*]\s+|\s*\d+\.\s+)/.test(line)).length > lines.length / 2;
+  if (isBullet) {
+    return (
+      <ul style={{ paddingLeft: '1.2em', marginBottom: 0 }}>
+        {lines.map((line, idx) => (
+          <li key={idx} style={{ textAlign: 'left', marginBottom: 2 }}>
+            {line.replace(/^(\s*[-*]\s+|\s*\d+\.\s+)/, '')}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  // Otherwise, render as paragraphs
+  return lines.map((line, idx) => (
+    <div key={idx} style={{ textAlign: 'left', marginBottom: 2 }}>{line}</div>
+  ));
+}
 
 function Chatbot({ isOpen: externalIsOpen, onToggle }) {
-  const { language } = useLanguage();
-
-  const translations = {
-    en: {
-      greeting: "Hello! I'm DigiBank Assistant. How can I help you today?",
-      error: "I'm having trouble processing your request right now. Please try again or contact our support team.",
-      typing: "Assistant is typing...",
-      placeholder: "Type your message..."
-    },
-    hi: {
-      greeting: "नमस्ते! मैं DigiBank सहायक हूँ। मैं आपकी कैसे मदद कर सकता हूँ?",
-      error: "मैं अभी आपकी अनुरोध को संसाधित करने में असमर्थ हूँ। कृपया पुनः प्रयास करें या हमारी सहायता टीम से संपर्क करें।",
-      typing: "सहायक टाइप कर रहा है...",
-      placeholder: "अपना संदेश लिखें..."
-    },
-    mr: {
-      greeting: "नमस्कार! मी DigiBank सहाय्यक आहे. मी तुम्हाला कशी मदत करू शकतो?",
-      error: "मी सध्या तुमच्या विनंतीवर प्रक्रिया करण्यात अक्षम आहे. कृपया पुन्हा प्रयत्न करा किंवा आमच्या सहाय्यक टीमशी संपर्क साधा.",
-      typing: "सहाय्यक टाइप करत आहे...",
-      placeholder: "आपला संदेश लिहा..."
-    }
-  };
-
-  const t = translations[language] || translations.en;
-
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: t.greeting,
+      text: "Hello! I'm ArthSetu(Bridge for Finance) Assistant. How can I help you today?",
       sender: 'bot',
       timestamp: new Date()
     }
@@ -44,6 +44,8 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
   const [isTyping, setIsTyping] = useState(false);
   const [isAIAvailableState, setIsAIAvailableState] = useState(false);
   const messagesEndRef = useRef(null);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
 
   // Use external state if provided, otherwise use internal state
   const isChatbotOpen = externalIsOpen !== undefined ? externalIsOpen : isOpen;
@@ -73,26 +75,23 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
     checkAIAvailability();
   }, []);
 
-  // Enhanced bot response with free AI integration
-  const getBotResponse = async (message) => {
-    try {
-      console.log('Getting bot response for:', message);
-      
-      // Get free AI or fallback response
-      const response = await getFreeAIResponse(message, messages.slice(-6));
-      console.log('Bot response received:', response);
-      
-      return response;
-    } catch (error) {
-      console.error('Error in getBotResponse:', error);
-      
-      // Return a friendly error message
-      return {
-        text: t.error,
-        quickReplies: ['Try Again', 'Contact Support', 'Help']
-      };
-    }
-  };
+  // Voice recognition setup
+  useEffect(() => {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.lang = 'en-US';
+    recognitionRef.current.interimResults = false;
+    recognitionRef.current.maxAlternatives = 1;
+    recognitionRef.current.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setInputMessage(transcript);
+      setIsListening(false);
+    };
+    recognitionRef.current.onend = () => setIsListening(false);
+    recognitionRef.current.onerror = () => setIsListening(false);
+  }, []);
+
 
   const handleSendMessage = async (message = inputMessage) => {
     if (!message.trim()) return;
@@ -113,14 +112,14 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
 
     try {
       // Get AI or fallback response
-      const botResponse = await getBotResponse(message);
+      const aiResponse = await sendMessageToVertexAI(message);
       
       const botMessage = {
         id: Date.now() + 1,
-        text: botResponse.text,
+        text: typeof aiResponse === 'string' ? aiResponse : aiResponse.text,
         sender: 'bot',
         timestamp: new Date(),
-        quickReplies: botResponse.quickReplies
+        quickReplies: aiResponse.quickReplies
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -153,6 +152,12 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
     }
   };
 
+  const handleMicClick = () => {
+    if (!recognitionRef.current) return;
+    setIsListening(true);
+    recognitionRef.current.start();
+  };
+
   return (
     <>
       {/* Chatbot Toggle Button */}
@@ -178,7 +183,7 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                   <i className="fas fa-robot text-primary"></i>
                 </div>
                 <div>
-                  <h6 className="mb-0 fw-bold">DigiBank Assistant</h6>
+                  <h6 className="mb-0 fw-bold">ArthSetu(Bridge for Finance) Assistant</h6>
                   <small className="text-white-50">
                     {isAIAvailableState ? 'AI Powered (Free)' : 'Standard Mode'}
                   </small>
@@ -202,7 +207,7 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                         ? 'bg-primary text-white' 
                         : 'bg-light text-dark'
                     }`} style={{ maxWidth: '80%' }}>
-                      <div className="mb-1">{message.text}</div>
+                      <div className="mb-1">{message.sender === 'bot' ? renderChatbotText(message.text) : message.text}</div>
                       <small className={`${message.sender === 'user' ? 'text-white-50' : 'text-muted'}`}>
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </small>
@@ -235,7 +240,7 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                           <span></span>
                           <span></span>
                         </div>
-                        <small className="text-muted">{t.typing}</small>
+                        <small className="text-muted">Assistant is typing...</small>
                       </div>
                     </div>
                   </div>
@@ -251,11 +256,27 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder={t.placeholder}
+                  placeholder={
+                    navbarLanguage === 'hi'
+                      ? 'अपना संदेश लिखें या बोलें...'
+                      : navbarLanguage === 'mr'
+                        ? 'तुमचा संदेश लिहा किंवा बोला..'
+                        : 'Type your message...'
+                  }
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                 />
+                <button
+                  className="btn btn-outline-secondary"
+                  type="button"
+                  onClick={handleMicClick}
+                  disabled={isListening || isTyping}
+                  style={{ marginRight: '0.5rem' }}
+                  title="Speak your question"
+                >
+                  <i className={`fas fa-microphone${isListening ? ' text-danger' : ''}`}></i>
+                </button>
                 <button
                   className="btn btn-primary"
                   onClick={() => handleSendMessage()}
@@ -264,6 +285,11 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                   <i className="fas fa-paper-plane"></i>
                 </button>
               </div>
+              {isListening && (
+                <div className="mt-2 text-danger" style={{ fontSize: '0.95rem' }}>
+                  Listening... Speak now!
+                </div>
+              )}
             </div>
           </div>
         </div>

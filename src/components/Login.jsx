@@ -6,10 +6,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
-import { useLanguage } from '../contexts/LanguageContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { auth } from '../firebase';
 
 function Login() {
-  const { language } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,13 @@ function Login() {
       setError('');
       setLoading(true);
       await login(email, password);
-      navigate('/dashboard');
+      const docRef = doc(db, 'users', auth.currentUser.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists() && docSnap.data().onboardingComplete) {
+        navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
+      }
     } catch (error) {
       setError('Failed to sign in: ' + error.message);
     }
@@ -78,52 +85,6 @@ function Login() {
     setTimeout(() => setVoiceFeedback(''), 3000);
   };
 
-  const translations = {
-    en: {
-      welcome: 'Welcome Back',
-      signin: 'Sign in to your DigiBank account',
-      email: 'Email address',
-      password: 'Password',
-      show: 'Show',
-      hide: 'Hide',
-      submit: 'Sign In',
-      security: '256-bit SSL Encryption',
-      voice: 'Voice commands available - Click the microphone button',
-      clear: 'Clear',
-      forgot: 'Forgot Password?',
-      noAccount: `Don't have an account? Sign Up`
-    },
-    hi: {
-      welcome: 'वापसी पर स्वागत है',
-      signin: 'अपने DigiBank खाते में साइन इन करें',
-      email: 'ईमेल पता',
-      password: 'पासवर्ड',
-      show: 'दिखाएँ',
-      hide: 'छुपाएँ',
-      submit: 'साइन इन करें',
-      security: '256-बिट SSL एन्क्रिप्शन',
-      voice: 'वॉइस कमांड उपलब्ध हैं - माइक्रोफोन बटन पर क्लिक करें',
-      clear: 'साफ़ करें',
-      forgot: 'पासवर्ड भूल गए?',
-      noAccount: 'कोई खाता नहीं है? साइन अप करें'
-    },
-    mr: {
-      welcome: 'परत स्वागत आहे',
-      signin: 'तुमच्या DigiBank खात्यात साइन इन करा',
-      email: 'ईमेल पत्ता',
-      password: 'पासवर्ड',
-      show: 'दाखवा',
-      hide: 'लपवा',
-      submit: 'साइन इन करा',
-      security: '256-बिट SSL एनक्रिप्शन',
-      voice: 'व्हॉइस कमांड उपलब्ध आहेत - मायक्रोफोन बटणावर क्लिक करा',
-      clear: 'साफ करा',
-      forgot: 'पासवर्ड विसरलात?',
-      noAccount: 'खाते नाही? साइन अप करा'
-    }
-  };
-  const t = translations[language] || translations.en;
-
   return (
     <div className="min-vh-100 d-flex align-items-center justify-content-center bg-gradient-primary" 
          style={{fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'}}>
@@ -140,7 +101,7 @@ function Login() {
                       <i className="fas fa-university text-white fs-4"></i>
                     </div>
                     <div>
-                      <h3 className="mb-0 text-primary fw-bold">DigiBank</h3>
+                      <h3 className="mb-0 text-primary fw-bold">ArthSetu(Bridge for Finance)</h3>
                       <small className="text-muted">Digital Banking Solutions</small>
                     </div>
                   </div>
@@ -160,8 +121,8 @@ function Login() {
                   </div>
                 </div>
 
-                <h2 className="text-center mb-4 fw-bold text-dark">{t.welcome}</h2>
-                <p className="text-center text-muted mb-4">{t.signin}</p>
+                <h2 className="text-center mb-4 fw-bold text-dark">Welcome Back</h2>
+                <p className="text-center text-muted mb-4">Sign in to your ArthSetu(Bridge for Finance) account</p>
 
                 {/* Voice Feedback Alert */}
                 {voiceFeedback && (
@@ -183,7 +144,7 @@ function Login() {
                   <div className="mb-3">
                     <label htmlFor="email" className="form-label fw-semibold text-dark">
                       <i className="fas fa-envelope me-2 text-primary"></i>
-                      {t.email}
+                      Email Address
                     </label>
                     <div className="input-group">
                       <span className="input-group-text bg-light border-end-0">
@@ -195,7 +156,7 @@ function Login() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="form-control border-start-0" 
-                        placeholder={`${t.email} or say 'my ${t.email} is' followed by your ${t.email}`}
+                        placeholder="Enter your email or say 'my email is' followed by your email"
                         required
                       />
                     </div>
@@ -204,7 +165,7 @@ function Login() {
                   <div className="mb-4">
                     <label htmlFor="password" className="form-label fw-semibold text-dark">
                       <i className="fas fa-lock me-2 text-primary"></i>
-                      {t.password}
+                      Password
                     </label>
                     <div className="input-group">
                       <span className="input-group-text bg-light border-end-0">
@@ -216,7 +177,7 @@ function Login() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="form-control border-start-0" 
-                        placeholder={`${t.password} or say 'my ${t.password} is' followed by your ${t.password}`}
+                        placeholder="Enter your password or say 'my password is' followed by your password"
                         required
                       />
                       <button 
@@ -237,7 +198,9 @@ function Login() {
                         Remember me
                       </label>
                     </div>
-                    <a href="/forgot-password" className="text-primary text-decoration-none fw-semibold">{t.forgot}</a>
+                    <a href="/forgot-password" className="text-primary text-decoration-none fw-semibold">
+                      Forgot Password?
+                    </a>
                   </div>
 
                   <button 
@@ -253,13 +216,13 @@ function Login() {
                     ) : (
                       <>
                         <i className="fas fa-sign-in-alt me-2"></i>
-                        {t.submit}
+                        Sign In
                       </>
                     )}
                   </button>
 
                   <div className="text-center">
-                    <p className="text-muted mb-0">{t.noAccount}</p>
+                    <p className="text-muted mb-0">Don't have an account?</p>
                     <a href="/signup" className="text-primary text-decoration-none fw-semibold">
                       Create Account
                     </a>
@@ -270,7 +233,7 @@ function Login() {
                 <div className="text-center mt-4 pt-3 border-top">
                   <div className="d-flex justify-content-center align-items-center gap-2">
                     <i className="fas fa-shield-alt text-success security-icon"></i>
-                    <small className="text-muted">{t.security}</small>
+                    <small className="text-muted">256-bit SSL Encryption</small>
                   </div>
                 </div>
 
@@ -278,7 +241,7 @@ function Login() {
                 <div className="text-center mt-3">
                   <div className="d-flex justify-content-center align-items-center gap-2">
                     <i className="fas fa-microphone text-primary"></i>
-                    <small className="text-muted">{t.voice}</small>
+                    <small className="text-muted">Voice commands available - Click the microphone button</small>
                   </div>
                 </div>
               </div>

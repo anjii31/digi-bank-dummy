@@ -6,10 +6,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
-import { useLanguage } from '../contexts/LanguageContext';
 
 function Signup() {
-  const { language } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -93,52 +91,6 @@ function Signup() {
     setTimeout(() => setVoiceFeedback(''), 3000);
   };
 
-  const translations = {
-    en: {
-      create: 'Create Account',
-      join: 'Join DigiBank today',
-      name: 'Full Name',
-      email: 'Email address',
-      password: 'Password',
-      confirm: 'Confirm Password',
-      show: 'Show',
-      hide: 'Hide',
-      submit: 'Sign Up',
-      security: '256-bit SSL Encryption',
-      voice: 'Voice commands available - Click the microphone button',
-      haveAccount: 'Already have an account? Sign In'
-    },
-    hi: {
-      create: 'खाता बनाएं',
-      join: 'आज ही DigiBank से जुड़ें',
-      name: 'पूरा नाम',
-      email: 'ईमेल पता',
-      password: 'पासवर्ड',
-      confirm: 'पासवर्ड की पुष्टि करें',
-      show: 'दिखाएँ',
-      hide: 'छुपाएँ',
-      submit: 'पंजीकरण करें',
-      security: '256-बिट SSL एन्क्रिप्शन',
-      voice: 'वॉइस कमांड उपलब्ध हैं - माइक्रोफोन बटन पर क्लिक करें',
-      haveAccount: 'पहले से खाता है? साइन इन करें'
-    },
-    mr: {
-      create: 'खाते तयार करा',
-      join: 'आज DigiBank मध्ये सामील व्हा',
-      name: 'पूर्ण नाव',
-      email: 'ईमेल पत्ता',
-      password: 'पासवर्ड',
-      confirm: 'पासवर्डची पुष्टी करा',
-      show: 'दाखवा',
-      hide: 'लपवा',
-      submit: 'साइन अप करा',
-      security: '256-बिट SSL एनक्रिप्शन',
-      voice: 'व्हॉइस कमांड उपलब्ध आहेत - मायक्रोफोन बटणावर क्लिक करा',
-      haveAccount: 'आधीच खाते आहे? साइन इन करा'
-    }
-  };
-  const t = translations[language] || translations.en;
-
   return (
     <div className="min-vh-100 d-flex align-items-center justify-content-center bg-gradient-primary" 
          style={{fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'}}>
@@ -155,14 +107,14 @@ function Signup() {
                       <i className="fas fa-university text-white fs-4"></i>
                     </div>
                     <div>
-                      <h3 className="mb-0 text-primary fw-bold">DigiBank</h3>
+                      <h3 className="mb-0 text-primary fw-bold">ArthSetu(Bridge for Finance)</h3>
                       <small className="text-muted">Digital Banking Solutions</small>
                     </div>
                   </div>
                 </div>
 
-                <h2 className="text-center mb-4 fw-bold text-dark">{t.create}</h2>
-                <p className="text-center text-muted mb-4">{t.join}</p>
+                <h2 className="text-center mb-4 fw-bold text-dark">Create Account</h2>
+                <p className="text-center text-muted mb-4">Join ArthSetu(Bridge for Finance) today</p>
 
                 {/* Voice Feedback Alert */}
                 {voiceFeedback && (
@@ -184,7 +136,7 @@ function Signup() {
                   <div className="mb-3">
                     <label htmlFor="displayName" className="form-label fw-semibold text-dark">
                       <i className="fas fa-user me-2 text-primary"></i>
-                      {t.name}
+                      Full Name
                     </label>
                     <div className="input-group">
                       <span className="input-group-text bg-light border-end-0">
@@ -196,7 +148,7 @@ function Signup() {
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         className="form-control border-start-0" 
-                        placeholder={`Enter your ${t.name} or say 'my ${t.name} is' followed by your ${t.name}`}
+                        placeholder="Enter your full name or say 'my name is' followed by your name"
                         required
                       />
                     </div>
@@ -205,7 +157,7 @@ function Signup() {
                   <div className="mb-3">
                     <label htmlFor="email" className="form-label fw-semibold text-dark">
                       <i className="fas fa-envelope me-2 text-primary"></i>
-                      {t.email}
+                      Email Address
                     </label>
                     <div className="input-group">
                       <span className="input-group-text bg-light border-end-0">
@@ -217,7 +169,7 @@ function Signup() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="form-control border-start-0" 
-                        placeholder={`Enter your ${t.email} or say 'my ${t.email} is' followed by your ${t.email}`}
+                        placeholder="Enter your email or say 'my email is' followed by your email"
                         required
                       />
                     </div>
@@ -226,7 +178,7 @@ function Signup() {
                   <div className="mb-3">
                     <label htmlFor="password" className="form-label fw-semibold text-dark">
                       <i className="fas fa-lock me-2 text-primary"></i>
-                      {t.password}
+                      Password
                     </label>
                     <div className="input-group">
                       <span className="input-group-text bg-light border-end-0">
@@ -238,7 +190,7 @@ function Signup() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="form-control border-start-0" 
-                        placeholder={`Enter your ${t.password} or say 'my ${t.password} is' followed by your ${t.password}`}
+                        placeholder="Enter your password or say 'my password is' followed by your password"
                         required
                       />
                     </div>
@@ -247,7 +199,7 @@ function Signup() {
                   <div className="mb-4">
                     <label htmlFor="confirmPassword" className="form-label fw-semibold text-dark">
                       <i className="fas fa-lock me-2 text-primary"></i>
-                      {t.confirm}
+                      Confirm Password
                     </label>
                     <div className="input-group">
                       <span className="input-group-text bg-light border-end-0">
@@ -278,13 +230,13 @@ function Signup() {
                     ) : (
                       <>
                         <i className="fas fa-user-plus me-2"></i>
-                        {t.submit}
+                        Create Account
                       </>
                     )}
                   </button>
 
                   <div className="text-center">
-                    <p className="text-muted mb-0">{t.haveAccount}</p>
+                    <p className="text-muted mb-0">Already have an account?</p>
                     <a href="/login" className="text-primary text-decoration-none fw-semibold">
                       Sign In
                     </a>
@@ -295,7 +247,7 @@ function Signup() {
                 <div className="text-center mt-4 pt-3 border-top">
                   <div className="d-flex justify-content-center align-items-center gap-2">
                     <i className="fas fa-shield-alt text-success security-icon"></i>
-                    <small className="text-muted">{t.security}</small>
+                    <small className="text-muted">256-bit SSL Encryption</small>
                   </div>
                 </div>
 
@@ -303,7 +255,7 @@ function Signup() {
                 <div className="text-center mt-3">
                   <div className="d-flex justify-content-center align-items-center gap-2">
                     <i className="fas fa-microphone text-primary"></i>
-                    <small className="text-muted">{t.voice}</small>
+                    <small className="text-muted">Voice commands available - Click the microphone button</small>
                   </div>
                 </div>
               </div>

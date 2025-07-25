@@ -126,7 +126,7 @@ function ForgotPassword() {
                       <i className="fas fa-university text-white fs-4"></i>
                     </div>
                     <div>
-                      <h3 className="mb-0 text-primary fw-bold">DigiBank</h3>
+                      <h3 className="mb-0 text-primary fw-bold">ArthSetu(Bridge for Finance)</h3>
                       <small className="text-muted">Digital Banking Solutions</small>
                     </div>
                   </div>
