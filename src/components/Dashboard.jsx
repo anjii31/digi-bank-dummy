@@ -370,14 +370,12 @@ function Dashboard() {
         />
 
         {/* Voice Assistant fixed at right center */}
-      <div style={{ position: 'fixed', top: '20%', right: 32, transform: 'translateY(-50%)', zIndex: 1100 }}>
         <VoiceAssistant
           onVoiceCommand={handleVoiceCommand}
           currentPage="login"
         />
       </div>
       </div>
-    </div>
   );
 }
 
