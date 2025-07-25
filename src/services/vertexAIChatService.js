@@ -1,10 +1,12 @@
 // Service to call Vertex AI Gemini backend
 export async function sendMessageToVertexAI(message) {
-  const res = await fetch('http://localhost:3001/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
+  const url = `https://hack-team-finnohack.uc.r.appspot.com/ai/generate?message=${(message)}`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' }
   });
-  const data = await res.json();
-  return data.text;
+  const data = await res.text();
+  console.log(data)
+  // Try to return the most likely property, or the whole response as string
+  return data;
 } 

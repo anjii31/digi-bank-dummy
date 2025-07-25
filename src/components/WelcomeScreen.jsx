@@ -3,11 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
-<<<<<<< HEAD
 import { useLanguage } from '../contexts/LanguageContext';
-=======
-import { getRecommendationsForUser } from '../services/recommendationService';
->>>>>>> c97d56c0b8532af1c37cd23d38c49fd747fbcef0
 
 function WelcomeScreen() {
   const { language } = useLanguage();
@@ -91,7 +87,7 @@ function WelcomeScreen() {
 
   const translations = {
     en: {
-      welcome: 'Welcome to DigiBank!',
+      welcome: 'Welcome to AirthSetu!',
       excited: `We're excited to help you on your financial journey.`,
       summary: 'Your Profile Summary',
       recommended: 'Recommended for You',

@@ -34,7 +34,7 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hello! I'm ArthSetu(Bridge for Finance) Assistant. How can I help you today?",
+      text: "Hello! I'm ArthSetu (Bridge to finance) Assistant. How can I help you today?",
       sender: 'bot',
       timestamp: new Date()
     }
@@ -183,9 +183,9 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                   <i className="fas fa-robot text-primary"></i>
                 </div>
                 <div>
-                  <h6 className="mb-0 fw-bold">ArthSetu(Bridge for Finance) Assistant</h6>
+                  <h6 className="mb-0 fw-bold">ArthSetu (Bridge to finance) Assistant</h6>
                   <small className="text-white-50">
-                    {isAIAvailableState ? 'AI Powered (Free)' : 'Standard Mode'}
+                    {isAIAvailableState ? 'AI Powered' : 'Standard Mode'}
                   </small>
                 </div>
               </div>

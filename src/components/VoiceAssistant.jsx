@@ -30,7 +30,7 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
 
   const translations = {
     en: {
-      welcome: "Welcome to DigiBank. You can use voice commands to navigate and fill forms. Say 'help' for voice commands.",
+      welcome: "Welcome to ArthSetu. You can use voice commands to navigate and fill forms. Say 'help' for voice commands.",
       sorry: "Sorry, I could not understand. Please try again.",
       listening: "Listening...",
       processing: "Processing: ",

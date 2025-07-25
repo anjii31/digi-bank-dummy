@@ -107,14 +107,14 @@ function Signup() {
                       <i className="fas fa-university text-white fs-4"></i>
                     </div>
                     <div>
-                      <h3 className="mb-0 text-primary fw-bold">ArthSetu(Bridge for Finance)</h3>
+                      <h3 className="mb-0 text-primary fw-bold">ArthSetu</h3>
                       <small className="text-muted">Digital Banking Solutions</small>
                     </div>
                   </div>
                 </div>
 
                 <h2 className="text-center mb-4 fw-bold text-dark">Create Account</h2>
-                <p className="text-center text-muted mb-4">Join ArthSetu(Bridge for Finance) today</p>
+                <p className="text-center text-muted mb-4">Join ArthSetu today</p>
 
                 {/* Voice Feedback Alert */}
                 {voiceFeedback && (
