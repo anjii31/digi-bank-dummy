@@ -4,7 +4,7 @@ import { sendMessageToVertexAI } from '../services/vertexAIChatService';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '../App.css';
-import { navbarLanguage } from './Navbar';
+import { useLanguage } from '../contexts/LanguageContext';
 
 
 // Helper to render bot message text with bullets/numbered points as a list
@@ -31,10 +31,57 @@ function renderChatbotText(text) {
 }
 
 function Chatbot({ isOpen: externalIsOpen, onToggle }) {
+  const { language } = useLanguage();
+  const translations = {
+    en: {
+      welcome: "Hello! I'm ArthSetu (Bridge to finance) Assistant. How can I help you today?",
+      aiPowered: 'AI Powered',
+      standardMode: 'Standard Mode',
+      assistantTyping: 'Assistant is typing...',
+      typeMessage: 'Type your message...',
+      typeMessageHi: 'अपना संदेश लिखें या बोलें...',
+      typeMessageMr: 'तुमचा संदेश लिहा किंवा बोला..',
+      error: "I'm having trouble processing your request right now. Please try again or contact our support team.",
+      tryAgain: 'Try Again',
+      contactSupport: 'Contact Support',
+      help: 'Help',
+      listening: 'Listening... Speak now!'
+    },
+    hi: {
+      welcome: 'नमस्ते! मैं ArthSetu (Bridge to finance) सहायक हूँ। मैं आपकी कैसे मदद कर सकता हूँ?',
+      aiPowered: 'एआई संचालित',
+      standardMode: 'मानक मोड',
+      assistantTyping: 'सहायक टाइप कर रहा है...',
+      typeMessage: 'अपना संदेश लिखें या बोलें...',
+      typeMessageHi: 'अपना संदेश लिखें या बोलें...',
+      typeMessageMr: 'तुमचा संदेश लिहा किंवा बोला..',
+      error: 'मैं अभी आपकी अनुरोध को संसाधित करने में असमर्थ हूँ। कृपया पुनः प्रयास करें या हमारी सहायता टीम से संपर्क करें।',
+      tryAgain: 'पुनः प्रयास करें',
+      contactSupport: 'सहायता से संपर्क करें',
+      help: 'मदद',
+      listening: 'सुन रहा हूँ... अभी बोलें!'
+    },
+    mr: {
+      welcome: 'नमस्कार! मी ArthSetu (Bridge to finance) सहाय्यक आहे. मी तुम्हाला कशी मदत करू शकतो?',
+      aiPowered: 'एआय समर्थित',
+      standardMode: 'मानक मोड',
+      assistantTyping: 'सहाय्यक टाइप करत आहे...',
+      typeMessage: 'तुमचा संदेश लिहा किंवा बोला..',
+      typeMessageHi: 'अपना संदेश लिखें या बोलें...',
+      typeMessageMr: 'तुमचा संदेश लिहा किंवा बोला..',
+      error: 'मी सध्या तुमच्या विनंतीवर प्रक्रिया करू शकत नाही. कृपया पुन्हा प्रयत्न करा किंवा आमच्या सहाय्यक टीमशी संपर्क साधा.',
+      tryAgain: 'पुन्हा प्रयत्न करा',
+      contactSupport: 'संपर्क समर्थन',
+      help: 'मदत',
+      listening: 'ऐकत आहे... आत्ता बोला!'
+    }
+  };
+  const t = translations[language] || translations.en;
+
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hello! I'm ArthSetu (Bridge to finance) Assistant. How can I help you today?",
+      text: t.welcome,
       sender: 'bot',
       timestamp: new Date()
     }
@@ -74,6 +121,28 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
     
     checkAIAvailability();
   }, []);
+
+  // Add this effect to update the welcome message when language changes
+  useEffect(() => {
+    setMessages((msgs) => {
+      // If the first message is a bot welcome, update it; else, prepend
+      if (msgs.length > 0 && msgs[0].sender === 'bot') {
+        const updated = [...msgs];
+        updated[0] = { ...updated[0], text: t.welcome };
+        return updated;
+      } else {
+        return [
+          {
+            id: Date.now(),
+            text: t.welcome,
+            sender: 'bot',
+            timestamp: new Date()
+          },
+          ...msgs
+        ];
+      }
+    });
+  }, [language]);
 
   // Voice recognition setup
   useEffect(() => {
@@ -129,10 +198,10 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
       // Error message
       const errorMessage = {
         id: Date.now() + 1,
-        text: "I'm having trouble processing your request right now. Please try again or contact our support team.",
+        text: t.error,
         sender: 'bot',
         timestamp: new Date(),
-        quickReplies: ['Try Again', 'Contact Support', 'Help']
+        quickReplies: [t.tryAgain, t.contactSupport, t.help]
       };
 
       setMessages(prev => [...prev, errorMessage]);
@@ -185,7 +254,7 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                 <div>
                   <h6 className="mb-0 fw-bold">ArthSetu (Bridge to finance) Assistant</h6>
                   <small className="text-white-50">
-                    {isAIAvailableState ? 'AI Powered' : 'Standard Mode'}
+                    {isAIAvailableState ? t.aiPowered : t.standardMode}
                   </small>
                 </div>
               </div>
@@ -212,7 +281,6 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </small>
                     </div>
-                    
                     {/* Quick Replies */}
                     {message.sender === 'bot' && message.quickReplies && (
                       <div className="mt-2">
@@ -229,7 +297,6 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                     )}
                   </div>
                 ))}
-                
                 {/* Typing Indicator */}
                 {isTyping && (
                   <div className="mb-3 chat-message">
@@ -240,12 +307,11 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                           <span></span>
                           <span></span>
                         </div>
-                        <small className="text-muted">Assistant is typing...</small>
+                        <small className="text-muted">{t.assistantTyping}</small>
                       </div>
                     </div>
                   </div>
                 )}
-                
                 <div ref={messagesEndRef} />
               </div>
             </div>
@@ -257,11 +323,11 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
                   type="text"
                   className="form-control"
                   placeholder={
-                    navbarLanguage === 'hi'
-                      ? 'अपना संदेश लिखें या बोलें...'
-                      : navbarLanguage === 'mr'
-                        ? 'तुमचा संदेश लिहा किंवा बोला..'
-                        : 'Type your message...'
+                    language === 'hi'
+                      ? t.typeMessageHi
+                      : language === 'mr'
+                        ? t.typeMessageMr
+                        : t.typeMessage
                   }
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
@@ -287,7 +353,7 @@ function Chatbot({ isOpen: externalIsOpen, onToggle }) {
               </div>
               {isListening && (
                 <div className="mt-2 text-danger" style={{ fontSize: '0.95rem' }}>
-                  Listening... Speak now!
+                  {t.listening}
                 </div>
               )}
             </div>
