@@ -37,14 +37,14 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
       unknown: (result) => `I heard: ${result}. Please try a different command.`
     },
     hi: {
-      welcome: "DigiBank में आपका स्वागत है। आप वॉइस कमांड का उपयोग कर सकते हैं। वॉइस कमांड के लिए 'help' कहें।",
+      welcome: "ArthSetu में आपका स्वागत है। आप वॉइस कमांड का उपयोग कर सकते हैं। वॉइस कमांड के लिए 'help' कहें।",
       sorry: "माफ़ कीजिए, मैं समझ नहीं पाया। कृपया पुनः प्रयास करें।",
       listening: "सुन रहा हूँ...",
       processing: "प्रसंस्करण: ",
       unknown: (result) => `मैंने सुना: ${result}. कृपया कोई अन्य कमांड आज़माएँ।`
     },
     mr: {
-      welcome: "DigiBank मध्ये आपले स्वागत आहे. आपण व्हॉइस कमांड वापरू शकता. व्हॉइस कमांडसाठी 'help' म्हणा.",
+      welcome: "Arthsetu मध्ये आपले स्वागत आहे. आपण व्हॉइस कमांड वापरू शकता. व्हॉइस कमांडसाठी 'help' म्हणा.",
       sorry: "माफ करा, मी समजू शकलो नाही. कृपया पुन्हा प्रयत्न करा.",
       listening: "ऐकत आहे...",
       processing: "प्रक्रिया: ",
@@ -190,7 +190,7 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
     <>
       {/* Voice Assistant Button */}
       <div className="position-fixed top-0 end-0 m-4" style={{ zIndex: 1001 }}>
-        <div className="d-flex flex-column align-items-end">
+      <div className="d-flex flex-column align-items-end" style={{ paddingTop: '60%' }}>
           {/* Voice Button */}
           <button
             className={`btn btn-lg rounded-circle shadow-lg voice-assistant-btn ${
