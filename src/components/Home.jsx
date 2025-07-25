@@ -69,7 +69,7 @@ const stats = [
 ];
 
 const testimonials = [
-  { name: 'Amit S.', text: 'ArthSetu(Bridge for Finance) made my finances so easy to manage. Highly recommended!' },
+  { name: 'Amit S.', text: 'ArthSetu (Bridge to finance) made my finances so easy to manage. Highly recommended!' },
   { name: 'Priya K.', text: 'The app is super intuitive and the support is fantastic.' },
   { name: 'Ramesh V.', text: 'I love the investment options and the security features.' },
 ];
@@ -347,7 +347,7 @@ const Home = () => {
       {!showLangModal && (
         <div className="container mb-5">
           <div className="py-5 px-3 rounded shadow-sm" style={{ maxWidth: 700, margin: '0 auto', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)' }}>
-            <h1 className="arthsetu-welcome mb-2">Welcome to ArthSetu(Bridge for Finance)</h1>
+            <h1 className="arthsetu-welcome mb-2">Welcome to ArthSetu (Bridge to finance)</h1>
             <p className="arthsetu-subtitle lead text-muted mb-4">Your personal financial guidance app—empowering you to make smarter money decisions, save more, and achieve your financial goals with confidence.</p>
           </div>
         </div>

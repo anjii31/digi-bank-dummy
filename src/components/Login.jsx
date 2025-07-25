@@ -101,7 +101,7 @@ function Login() {
                       <i className="fas fa-university text-white fs-4"></i>
                     </div>
                     <div>
-                      <h3 className="mb-0 text-primary fw-bold">ArthSetu(Bridge for Finance)</h3>
+                      <h3 className="mb-0 text-primary fw-bold">ArthSetu</h3>
                       <small className="text-muted">Digital Banking Solutions</small>
                     </div>
                   </div>
@@ -122,7 +122,7 @@ function Login() {
                 </div>
 
                 <h2 className="text-center mb-4 fw-bold text-dark">Welcome Back</h2>
-                <p className="text-center text-muted mb-4">Sign in to your ArthSetu(Bridge for Finance) account</p>
+                <p className="text-center text-muted mb-4">Sign in to your ArthSetu (Bridge to finance) account</p>
 
                 {/* Voice Feedback Alert */}
                 {voiceFeedback && (

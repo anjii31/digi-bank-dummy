@@ -165,7 +165,7 @@ function Dashboard() {
                    style={{width: '40px', height: '40px'}}>
                 <i className="fas fa-university text-primary"></i>
               </div>
-              <span className="fw-bold">ArthSetu(Bridge for Finance)</span>
+              <span className="fw-bold">ArthSetu</span>
             </div>
             
             <div className="navbar-nav ms-auto">
@@ -222,15 +222,11 @@ function Dashboard() {
                 <div className="card-body">
                   <h2 className="card-title text-primary mb-3">
                     <i className="fas fa-home me-2"></i>
-                    Welcome to ArthSetu(Bridge for Finance)
+                    Welcome to ArthSetu (Bridge to Finance)
                   </h2>
                   <button className="btn btn-outline-primary me-2" onClick={() => navigate('/onboarding')}>
                     <i className="fas fa-user-edit me-2"></i>
                     Update Profile / Onboarding
-                  </button>
-                  <button className="btn btn-outline-success" onClick={() => navigate('/welcome')}>
-                    <i className="fas fa-star me-2"></i>
-                    View Welcome & Recommendations
                   </button>
                 </div>
               </div>
