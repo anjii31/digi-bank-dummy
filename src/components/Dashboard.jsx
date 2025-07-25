@@ -228,10 +228,6 @@ function Dashboard() {
                     <i className="fas fa-user-edit me-2"></i>
                     Update Profile / Onboarding
                   </button>
-                  <button className="btn btn-outline-success" onClick={() => navigate('/welcome')}>
-                    <i className="fas fa-star me-2"></i>
-                    View Welcome & Recommendations
-                  </button>
                 </div>
               </div>
             </div>

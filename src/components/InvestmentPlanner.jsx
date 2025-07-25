@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Bar } from 'react-chartjs-2';
-// import { motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 import {
   Chart as ChartJS,
@@ -15,8 +15,10 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
-// import investmentPlannerPrompt from '../llm_promts/investment_planner_prompt.txt'; // Will use dynamic import
-// import investmentPlannerSample from '../llm_promts/investment_planner_sample_response.json'; // Will use dynamic import
+import investmentPlannerPrompt from '../llm_promts/investment_planner_prompt.txt'; // Will use dynamic import
+import investmentPlannerSample from '../llm_promts/investment_planner_sample_response.json'; // Will use dynamic import
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -135,10 +137,22 @@ function extractCalculationLines(text) {
 // Helper to determine if a step refers to an investment option
 function isInvestmentStep(title, desc) {
   const keywords = [
-    'fund', 'deposit', 'sip', 'equity', 'debt', 'mutual', 'fixed', 'recurring', 'account', 'scheme'
+    'fund', 'deposit', 'sip', 'equity', 'debt', 'mutual', 'fixed', 'recurring', 'account', 'scheme',
+    'rd', 'fd', 'ppf', 'lic', 'nps', 'bond', 'ulip', 'elss', 'pension', 'insurance', 'gold', 'stock', 'share', 'mf', 'post office', 'sukanya', 'ssy', 'kisan', 'chit', 'loan', 'savings', 'investment'
   ];
   const text = (title + ' ' + (desc || '')).toLowerCase();
   return keywords.some(word => text.includes(word));
+}
+
+// Helper to highlight investment keywords in a string
+function highlightInvestmentKeywords(text) {
+  if (!text) return '';
+  const keywords = [
+    'RD', 'FD', 'PPF', 'SIP', 'LIC', 'NPS', 'Bond', 'ULIP', 'ELSS', 'Pension', 'Insurance', 'Gold', 'Stock', 'Share', 'MF', 'Post Office', 'Sukanya', 'SSY', 'Kisan', 'Chit', 'Loan', 'Savings', 'Investment',
+    'Fund', 'Deposit', 'Equity', 'Debt', 'Mutual', 'Fixed', 'Recurring', 'Account', 'Scheme'
+  ];
+  const regex = new RegExp(`\\b(${keywords.join('|')})\\b`, 'gi');
+  return text.replace(regex, match => `<span style="color:#007bff;font-weight:bold;">${match}</span>`);
 }
 
 const InvestmentPlanner = () => {
@@ -204,10 +218,27 @@ const InvestmentPlanner = () => {
       setAiSteps(parseSteps(answer));
       const chartPoints = extractNumbersFromText(answer);
       if (chartPoints.length > 0) {
-        // Set total invested to monthly savings multiplied by duration
-        const totalInvested = (Number(savings) || 0) * (Number(duration) || 1);
-        // Set maturity value to 30% extra of total invested
-        let maturityValue = totalInvested * 1.3;
+        // Set total invested to monthly savings multiplied by 12 (for a year)
+        const totalInvested = (Number(savings) || 0) * 12;
+        // Try to extract maturity value from the last 2-3 steps in the step-by-step plan
+        let maturityValue = 0;
+        if (aiSteps.length > 0) {
+          const maturityKeywords = /returns|return|gain|estimated gains|maturity/i;
+          const lastSteps = aiSteps.slice(-3);
+          for (let step of lastSteps) {
+            if (maturityKeywords.test(step) && /₹[\d,]+/.test(step)) {
+              const match = step.match(/₹[\d,]+/);
+              if (match) {
+                maturityValue = Number(match[0].replace(/[^\d.]/g, ''));
+                break;
+              }
+            }
+          }
+        }
+        // Fallback to 30% extra of total invested
+        if (!maturityValue) {
+          maturityValue = totalInvested * 1.3;
+        }
         setChartData({
           labels: chartPoints.map(d => d.label),
           datasets: [
@@ -236,6 +267,22 @@ const InvestmentPlanner = () => {
     await handleGetPlan();
   };
 
+  // PDF download handler
+  const handleDownloadPDF = async () => {
+    const input = document.getElementById('investment-planner-pdf-content');
+    if (!input) return;
+    const canvas = await html2canvas(input, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pageWidth;
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('investment-planner.pdf');
+  };
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh', width: '100vw', overflow: 'hidden' }}>
       {/* Fullscreen background image and overlay */}
@@ -253,221 +300,231 @@ const InvestmentPlanner = () => {
       {/* Main content */}
       <div className="container py-5" style={{ maxWidth: 700, position: 'relative', zIndex: 1 }}>
         <motion.div className="card border-0 shadow-sm mb-4" initial="hidden" animate="visible" variants={fadeIn}>
-          <div className="card-body">
-            <h2 className="fw-bold text-primary mb-4"><i className="fas fa-chart-line me-2"></i>Investment Planner</h2>
-            <div className="row g-3 mb-3">
-              <div className="col-md-6">
-                <label className="form-label">Monthly Income</label>
-                <input type="number" className="form-control" value={income} onChange={e => setIncome(e.target.value)} min="0" />
+          <div className="card-body position-relative">
+            {/* Download PDF Button */}
+            <button
+              className="btn btn-outline-secondary position-absolute"
+              style={{ top: 16, right: 16, zIndex: 2 }}
+              onClick={handleDownloadPDF}
+            >
+              <i className="fas fa-download me-2"></i>Download as PDF
+            </button>
+            <div id="investment-planner-pdf-content">
+              <h2 className="fw-bold text-primary mb-4"><i className="fas fa-chart-line me-2"></i>Investment Planner</h2>
+              <div className="row g-3 mb-3">
+                <div className="col-md-6">
+                  <label className="form-label">Monthly Income</label>
+                  <input type="number" className="form-control" value={income} onChange={e => setIncome(e.target.value)} min="0" />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label">Monthly Savings</label>
+                  <input type="number" className="form-control" value={savings} onChange={e => setSavings(e.target.value)} min="0" />
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label">Investment Duration (years)</label>
+                  <select className="form-select" value={duration} onChange={e => setDuration(Number(e.target.value))}>
+                    {durations.map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label">Risk Level</label>
+                  <select className="form-select" value={risk} onChange={e => setRisk(e.target.value)}>
+                    {risks.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
               </div>
-              <div className="col-md-6">
-                <label className="form-label">Monthly Savings</label>
-                <input type="number" className="form-control" value={savings} onChange={e => setSavings(e.target.value)} min="0" />
-              </div>
-              <div className="col-md-6">
-                <label className="form-label">Investment Duration (years)</label>
-                <select className="form-select" value={duration} onChange={e => setDuration(Number(e.target.value))}>
-                  {durations.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </div>
-              <div className="col-md-6">
-                <label className="form-label">Risk Level</label>
-                <select className="form-select" value={risk} onChange={e => setRisk(e.target.value)}>
-                  {risks.map(r => <option key={r} value={r}>{r}</option>)}
-                </select>
-              </div>
-            </div>
-            <motion.button className="btn btn-primary mb-3" onClick={handleGetPlan} disabled={loading} whileTap={{ scale: 0.95 }}>
-              {loading ? 'Generating...' : 'Get Plan'}
-            </motion.button>
-            {error && <div className="alert alert-danger mt-3">{error}</div>}
+              <motion.button className="btn btn-primary mb-3" onClick={handleGetPlan} disabled={loading} whileTap={{ scale: 0.95 }}>
+                {loading ? 'Generating...' : 'Get Plan'}
+              </motion.button>
+              {error && <div className="alert alert-danger mt-3">{error}</div>}
+              {/* Animated Summary Cards */}
+              {summaryNumbers.length > 0 && (
+                <div className="row mb-4">
+                  {summaryNumbers.map((item, idx) => (
+                    <motion.div className="col-md-6 mb-3" key={idx} initial="hidden" animate="visible" variants={fadeIn} transition={{ delay: 0.1 * idx }}>
+                      <div className="card border-0 shadow-sm h-100 text-center" style={{ background: '#f8f9fa' }}>
+                        <div className="card-body">
+                          <i className={`${item.icon} fa-2x mb-2`} style={{ color: item.color }}></i>
+                          <h6 className="fw-bold mb-1">{item.label}</h6>
+                          <CountUp end={item.value} duration={1.2} separator="," prefix="₹" className="fs-4 fw-bold text-dark" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+              {/* AI Summary Card */}
+              {aiResponse && (
+                <motion.div className="card border-0 shadow-sm mb-4" initial="hidden" animate="visible" variants={fadeIn}>
+                  <div className="card-body">
+                    <h5 className="fw-bold text-success mb-3"><i className="fas fa-lightbulb me-2"></i>Your Personalized Investment Plan</h5>
+                    {/* Show the first non-redundant line as summary */}
+                    <div style={{ whiteSpace: 'pre-line', textAlign: 'left' }}>
+                      {aiResponse.split('\n').find(line => line.trim() && !isRedundantInfo(line))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+              {/* Steps Timeline - Redesigned */}
+              {aiSteps.length > 0 && (
+                <motion.div className="mb-4" initial="hidden" animate="visible" variants={fadeIn}>
+                  <h6 className="fw-bold text-primary mb-3">Step-by-Step Plan</h6>
+                  <div className="position-relative" style={{ paddingLeft: 36, minHeight: 60 }}>
+                    {/* Vertical line */}
+                    <div style={{
+                      position: 'absolute',
+                      left: 18,
+                      top: 0,
+                      bottom: 0,
+                      width: 4,
+                      background: 'linear-gradient(180deg, #007bff 0%, #20c997 100%)',
+                      borderRadius: 2,
+                      zIndex: 0,
+                    }}></div>
+                    <div className="d-flex flex-column gap-4">
+                      {(() => {
+                        let stepCount = 1;
+                        return aiSteps
+                          .filter(step => !isRedundantInfo(step) && !step.toLowerCase().includes('disclaimer'))
+                          .map((step, idx) => {
+                            const icon = getStepIcon(step);
+                            const { title, desc } = parseStepTitleAndDesc(step);
+                            const color = getStepColor(idx);
+                            const showStep = isInvestmentStep(title, desc);
+                            const stepLabel = showStep ? `Step ${stepCount++}` : null;
+                            return (
+                              <motion.div
+                                key={idx}
+                                initial="hidden"
+                                animate="visible"
+                                variants={fadeIn}
+                                transition={{ delay: 0.09 * idx }}
+                                className="d-flex align-items-start position-relative"
+                              >
+                                {/* Icon node */}
+                                <div style={{
+                                  width: 36,
+                                  height: 36,
+                                  borderRadius: '50%',
+                                  background: color,
+                                  color: 'white',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: 20,
+                                  fontWeight: 700,
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+                                  zIndex: 2,
+                                  marginRight: 18,
+                                  flexShrink: 0,
+                                }}>
+                                  <i className={icon}></i>
+                                </div>
+                                {/* Step content */}
+                                <div style={{ background: '#f8f9fa', borderRadius: 12, padding: '16px 20px', flex: 1, boxShadow: '0 2px 8px rgba(0,123,255,0.06)' }}>
+                                  <div className="d-flex align-items-center mb-1">
+                                    {/* Show Step X label only for investment option steps, with correct numbering */}
+                                    {showStep && (
+                                      <span style={{ color, fontWeight: 700, fontSize: 17, marginRight: 10 }}>{stepLabel}</span>
+                                    )}
+                                    <span style={{ fontWeight: 600, fontSize: 17 }} dangerouslySetInnerHTML={{ __html: highlightInvestmentKeywords(title) }} />
+                                  </div>
+                                  {desc && <div style={{ color: '#555', fontSize: 15, marginTop: 2 }} dangerouslySetInnerHTML={{ __html: highlightInvestmentKeywords(desc) }} />}
+                                </div>
+                              </motion.div>
+                            );
+                          });
+                      })()}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+              {/* Calculations Table - always shown */}
+              {(tableData || aiResponse) && (
+                <motion.div className="card border-0 shadow-sm mb-4" initial="hidden" animate="visible" variants={fadeIn}>
+                  <div className="card-body">
+                    <h6 className="fw-bold text-primary mb-3"><i className="fas fa-table me-2"></i>Calculations Table</h6>
+                    <div className="table-responsive">
+                      <table className="table table-bordered table-sm mb-0" style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,123,255,0.08)' }}>
+                        <thead style={{ background: 'linear-gradient(90deg, #007bff 0%, #20c997 100%)', color: '#fff' }}>
+                          <tr>
+                            <th style={{ border: 'none', fontWeight: 700 }}>Investment Type</th>
+                            <th style={{ border: 'none', fontWeight: 700 }}>Amount Invested</th>
+                            <th style={{ border: 'none', fontWeight: 700 }}>Maturity Amount per Month</th>
+                            <th style={{ border: 'none', fontWeight: 700 }}>Maturity Amount in One Year</th>
+                            <th style={{ border: 'none', fontWeight: 700 }}>Overall Returns</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {tableData
+                            ? tableData.rows.map((row, i) => (
+                                <tr key={i} style={{ background: i % 2 === 0 ? '#f8f9fa' : '#e3f0ff' }}>
+                                  {row.map((cell, j) => <td key={j} style={{ border: 'none', fontWeight: 500 }}>{cell}</td>)}
+                                </tr>
+                              ))
+                            : extractCalculationLines(aiResponse)
+                                .map((line, idx) => {
+                                  const calc = parseInvestmentSummary(line);
+                                  if (!calc.type && !calc.amount && !calc.maturityMonth && !calc.maturityYear && !calc.overallReturns) return null;
+                                  return (
+                                    <tr key={idx} style={{ background: idx % 2 === 0 ? '#f8f9fa' : '#e3f0ff' }}>
+                                      <td style={{ border: 'none', fontWeight: 600 }}>{calc.type}</td>
+                                      <td style={{ border: 'none' }}>{calc.amount}</td>
+                                      <td style={{ border: 'none' }}>{calc.maturityMonth}</td>
+                                      <td style={{ border: 'none' }}>{calc.maturityYear}</td>
+                                      <td style={{ border: 'none' }}>{calc.overallReturns}</td>
+                                    </tr>
+                                  );
+                                })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+              {/* Chart */}
+              {chartData && (
+                <motion.div className="card border-0 shadow-sm mb-4" initial="hidden" animate="visible" variants={fadeIn}>
+                  <div className="card-body">
+                    <h6 className="fw-bold text-primary mb-2">Projected Growth</h6>
+                    <Bar data={chartData} options={{
+                      responsive: true,
+                      plugins: { legend: { display: false }, tooltip: { enabled: true } },
+                      scales: {
+                        x: { title: { display: true, text: 'Year' } },
+                        y: { title: { display: true, text: 'Value (₹)' }, beginAtZero: true }
+                      }
+                    }} height={200} />
+                  </div>
+                </motion.div>
+              )}
+              {/* Regenerate Plan Label and Button */}
+              {hasGeneratedPlan && aiResponse && (
+                <div className="text-center mt-4 mb-2">
+                  <span
+                    className="fw-bold mb-2 d-inline-block"
+                    style={{
+                      fontSize: 18,
+                      color: labelDid ? '#20c997' : '#fd7e14',
+                      transition: 'color 0.5s, transform 0.5s, opacity 0.5s',
+                      transform: labelDid ? 'scale(1.08)' : 'scale(1)',
+                      opacity: labelDid ? 0.85 : 1,
+                    }}
+                  >
+                    {'Did not like your personalized plan? No worries!'}
+                  </span>
+                  <button
+                    className="btn btn-outline-primary px-4 py-2 fw-bold"
+                    style={{ borderRadius: 24, fontSize: 16, boxShadow: '0 2px 8px rgba(0,123,255,0.08)' }}
+                    onClick={handleRegeneratePlan}
+                  >
+                    Click here to generate new plan
+                  </button>
+                </div>
+              )}
+            </div> {/* End of investment-planner-pdf-content */}
           </div>
         </motion.div>
-        {/* Animated Summary Cards */}
-        {summaryNumbers.length > 0 && (
-          <div className="row mb-4">
-            {summaryNumbers.map((item, idx) => (
-              <motion.div className="col-md-6 mb-3" key={idx} initial="hidden" animate="visible" variants={fadeIn} transition={{ delay: 0.1 * idx }}>
-                <div className="card border-0 shadow-sm h-100 text-center" style={{ background: '#f8f9fa' }}>
-                  <div className="card-body">
-                    <i className={`${item.icon} fa-2x mb-2`} style={{ color: item.color }}></i>
-                    <h6 className="fw-bold mb-1">{item.label}</h6>
-                    <CountUp end={item.value} duration={1.2} separator="," prefix="₹" className="fs-4 fw-bold text-dark" />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-        {/* AI Summary Card */}
-        {aiResponse && (
-          <motion.div className="card border-0 shadow-sm mb-4" initial="hidden" animate="visible" variants={fadeIn}>
-            <div className="card-body">
-              <h5 className="fw-bold text-success mb-3"><i className="fas fa-lightbulb me-2"></i>Your Personalized Investment Plan</h5>
-              {/* Show the first non-redundant line as summary */}
-              <div style={{ whiteSpace: 'pre-line', textAlign: 'left' }}>
-                {aiResponse.split('\n').find(line => line.trim() && !isRedundantInfo(line))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-        {/* Steps Timeline - Redesigned */}
-        {aiSteps.length > 0 && (
-          <motion.div className="mb-4" initial="hidden" animate="visible" variants={fadeIn}>
-            <h6 className="fw-bold text-primary mb-3">Step-by-Step Plan</h6>
-            <div className="position-relative" style={{ paddingLeft: 36, minHeight: 60 }}>
-              {/* Vertical line */}
-              <div style={{
-                position: 'absolute',
-                left: 18,
-                top: 0,
-                bottom: 0,
-                width: 4,
-                background: 'linear-gradient(180deg, #007bff 0%, #20c997 100%)',
-                borderRadius: 2,
-                zIndex: 0,
-              }}></div>
-              <div className="d-flex flex-column gap-4">
-                {(() => {
-                  let stepCount = 1;
-                  return aiSteps
-                    .filter(step => !isRedundantInfo(step) && !step.toLowerCase().includes('disclaimer'))
-                    .map((step, idx) => {
-                      const icon = getStepIcon(step);
-                      const { title, desc } = parseStepTitleAndDesc(step);
-                      const color = getStepColor(idx);
-                      const showStep = isInvestmentStep(title, desc);
-                      const stepLabel = showStep ? `Step ${stepCount++}` : null;
-                      return (
-                        <motion.div
-                          key={idx}
-                          initial="hidden"
-                          animate="visible"
-                          variants={fadeIn}
-                          transition={{ delay: 0.09 * idx }}
-                          className="d-flex align-items-start position-relative"
-                        >
-                          {/* Icon node */}
-                          <div style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: '50%',
-                            background: color,
-                            color: 'white',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 20,
-                            fontWeight: 700,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
-                            zIndex: 2,
-                            marginRight: 18,
-                            flexShrink: 0,
-                          }}>
-                            <i className={icon}></i>
-                          </div>
-                          {/* Step content */}
-                          <div style={{ background: '#f8f9fa', borderRadius: 12, padding: '16px 20px', flex: 1, boxShadow: '0 2px 8px rgba(0,123,255,0.06)' }}>
-                            <div className="d-flex align-items-center mb-1">
-                              {/* Show Step X label only for investment option steps, with correct numbering */}
-                              {showStep && (
-                                <span style={{ color, fontWeight: 700, fontSize: 17, marginRight: 10 }}>{stepLabel}</span>
-                              )}
-                              <span style={{ fontWeight: 600, fontSize: 17 }}>{title}</span>
-                            </div>
-                            {desc && <div style={{ color: '#555', fontSize: 15, marginTop: 2 }}>{desc}</div>}
-                          </div>
-                        </motion.div>
-                      );
-                    });
-                })()}
-              </div>
-            </div>
-          </motion.div>
-        )}
-        {/* Calculations Table - always shown */}
-        {(tableData || aiResponse) && (
-          <motion.div className="card border-0 shadow-sm mb-4" initial="hidden" animate="visible" variants={fadeIn}>
-            <div className="card-body">
-              <h6 className="fw-bold text-primary mb-3"><i className="fas fa-table me-2"></i>Calculations Table</h6>
-              <div className="table-responsive">
-                <table className="table table-bordered table-sm mb-0" style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,123,255,0.08)' }}>
-                  <thead style={{ background: 'linear-gradient(90deg, #007bff 0%, #20c997 100%)', color: '#fff' }}>
-                    <tr>
-                      <th style={{ border: 'none', fontWeight: 700 }}>Investment Type</th>
-                      <th style={{ border: 'none', fontWeight: 700 }}>Amount Invested</th>
-                      <th style={{ border: 'none', fontWeight: 700 }}>Maturity Amount per Month</th>
-                      <th style={{ border: 'none', fontWeight: 700 }}>Maturity Amount in One Year</th>
-                      <th style={{ border: 'none', fontWeight: 700 }}>Overall Returns</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tableData
-                      ? tableData.rows.map((row, i) => (
-                          <tr key={i} style={{ background: i % 2 === 0 ? '#f8f9fa' : '#e3f0ff' }}>
-                            {row.map((cell, j) => <td key={j} style={{ border: 'none', fontWeight: 500 }}>{cell}</td>)}
-                          </tr>
-                        ))
-                      : extractCalculationLines(aiResponse)
-                          .map((line, idx) => {
-                            const calc = parseInvestmentSummary(line);
-                            if (!calc.type && !calc.amount && !calc.maturityMonth && !calc.maturityYear && !calc.overallReturns) return null;
-                            return (
-                              <tr key={idx} style={{ background: idx % 2 === 0 ? '#f8f9fa' : '#e3f0ff' }}>
-                                <td style={{ border: 'none', fontWeight: 600 }}>{calc.type}</td>
-                                <td style={{ border: 'none' }}>{calc.amount}</td>
-                                <td style={{ border: 'none' }}>{calc.maturityMonth}</td>
-                                <td style={{ border: 'none' }}>{calc.maturityYear}</td>
-                                <td style={{ border: 'none' }}>{calc.overallReturns}</td>
-                              </tr>
-                            );
-                          })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </motion.div>
-        )}
-        {/* Chart */}
-        {chartData && (
-          <motion.div className="card border-0 shadow-sm mb-4" initial="hidden" animate="visible" variants={fadeIn}>
-            <div className="card-body">
-              <h6 className="fw-bold text-primary mb-2">Projected Growth</h6>
-              <Bar data={chartData} options={{
-                responsive: true,
-                plugins: { legend: { display: false }, tooltip: { enabled: true } },
-                scales: {
-                  x: { title: { display: true, text: 'Year' } },
-                  y: { title: { display: true, text: 'Value (₹)' }, beginAtZero: true }
-                }
-              }} height={200} />
-            </div>
-          </motion.div>
-        )}
-        {/* Regenerate Plan Label and Button */}
-        {hasGeneratedPlan && aiResponse && (
-          <div className="text-center mt-4 mb-2">
-            <span
-              className="fw-bold mb-2 d-inline-block"
-              style={{
-                fontSize: 18,
-                color: labelDid ? '#20c997' : '#fd7e14',
-                transition: 'color 0.5s, transform 0.5s, opacity 0.5s',
-                transform: labelDid ? 'scale(1.08)' : 'scale(1)',
-                opacity: labelDid ? 0.85 : 1,
-              }}
-            >
-              {'Did not like your personalized plan? No worries!'}
-            </span>
-            <button
-              className="btn btn-outline-primary px-4 py-2 fw-bold"
-              style={{ borderRadius: 24, fontSize: 16, boxShadow: '0 2px 8px rgba(0,123,255,0.08)' }}
-              onClick={handleRegeneratePlan}
-            >
-              Click here to generate new plan
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
