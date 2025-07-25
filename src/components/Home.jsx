@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const financialVideos = [
   {
@@ -104,28 +105,146 @@ const OnboardingGuard = ({ children }) => {
   return children;
 };
 
+const languagePrompts = {
+  en: 'Please select your language: English, Hindi, or Marathi.',
+  hi: 'कृपया अपनी भाषा चुनें: अंग्रेज़ी, हिंदी, या मराठी।',
+  mr: 'कृपया आपली भाषा निवडा: इंग्रजी, हिंदी, किंवा मराठी.',
+};
+
+const translations = {
+  en: {
+    features: [
+      { icon: 'fa-user-graduate', title: 'Financial Literacy', desc: 'Learn the basics of money, saving, and investing.' },
+      { icon: 'fa-bullseye', title: 'Goal Setting', desc: 'Set, track, and achieve your financial goals.' },
+      { icon: 'fa-lightbulb', title: 'Personalized Advice', desc: 'Get tailored financial guidance for your needs.' },
+      { icon: 'fa-wallet', title: 'Budgeting Tools', desc: 'Plan and manage your spending with smart tools.' },
+      { icon: 'fa-chart-pie', title: 'Investment Education', desc: 'Understand investment options and grow your wealth.' },
+      { icon: 'fa-credit-card', title: 'Credit Improvement', desc: 'Tips and tools to build and maintain good credit.' },
+    ],
+    stats: [
+      { value: '1M+', label: 'Happy Customers' },
+      { value: '₹5000+ Cr', label: 'Transacted' },
+      { value: '4.8/5', label: 'App Store Rating' },
+      { value: '99.99%', label: 'Uptime' },
+    ],
+    testimonials: [
+      { name: 'Amit S.', text: 'ArthSetu (Bridge to finance) made my finances so easy to manage. Highly recommended!' },
+      { name: 'Priya K.', text: 'The app is super intuitive and the support is fantastic.' },
+      { name: 'Ramesh V.', text: 'I love the investment options and the security features.' },
+    ],
+    securityBadges: [
+      { icon: 'fa-shield-alt', label: '256-bit SSL Encryption' },
+      { icon: 'fa-lock', label: '2FA Enabled' },
+      { icon: 'fa-university', label: 'RBI Compliant' },
+      { icon: 'fa-user-check', label: 'KYC Verified' },
+    ],
+    learnMore: 'Learn More',
+    infoModalTitle: 'More Information',
+    infoModalBody: 'Login for free to check out more details.',
+    close: 'Close',
+    financialHelpVideos: 'Financial Help Videos',
+    testimonialsHeader: 'What Our Users Say',
+    listening: 'Listening for your language...',
+    notListening: 'Not listening',
+    brand: 'ArthSetu',
+    dashboard: 'Go to Dashboard',
+  },
+  hi: {
+    features: [
+      { icon: 'fa-user-graduate', title: 'वित्तीय साक्षरता', desc: 'पैसे, बचत और निवेश की मूल बातें जानें।' },
+      { icon: 'fa-bullseye', title: 'लक्ष्य निर्धारण', desc: 'अपने वित्तीय लक्ष्यों को निर्धारित करें, ट्रैक करें और प्राप्त करें।' },
+      { icon: 'fa-lightbulb', title: 'व्यक्तिगत सलाह', desc: 'अपनी आवश्यकताओं के लिए अनुकूलित वित्तीय मार्गदर्शन प्राप्त करें।' },
+      { icon: 'fa-wallet', title: 'बजटिंग टूल्स', desc: 'स्मार्ट टूल्स के साथ अपने खर्च की योजना बनाएं और प्रबंधित करें।' },
+      { icon: 'fa-chart-pie', title: 'निवेश शिक्षा', desc: 'निवेश विकल्पों को समझें और अपनी संपत्ति बढ़ाएं।' },
+      { icon: 'fa-credit-card', title: 'क्रेडिट सुधार', desc: 'अच्छा क्रेडिट बनाने और बनाए रखने के लिए टिप्स और टूल्स।' },
+    ],
+    stats: [
+      { value: '1M+', label: 'खुश ग्राहक' },
+      { value: '₹5000+ Cr', label: 'लेन-देन' },
+      { value: '4.8/5', label: 'ऐप स्टोअर रेटिंग' },
+      { value: '99.99%', label: 'अपटाइम' },
+    ],
+    testimonials: [
+      { name: 'Amit S.', text: 'अर्थसेतू (Bridge to finance) ने मेरी वित्तीय प्रबंधन को बहुत आसान बना दिया। अत्यधिक अनुशंसित!' },
+      { name: 'Priya K.', text: 'ऐप बहुत सहज है और सपोर्ट शानदार है।' },
+      { name: 'Ramesh V.', text: 'मुझे निवेश विकल्प और सुरक्षा फीचर्स बहुत पसंद हैं।' },
+    ],
+    securityBadges: [
+      { icon: 'fa-shield-alt', label: '256-बिट एसएसएल एन्क्रिप्शन' },
+      { icon: 'fa-lock', label: '2FA सक्षम' },
+      { icon: 'fa-university', label: 'RBI अनुरूप' },
+      { icon: 'fa-user-check', label: 'KYC सत्यापित' },
+    ],
+    learnMore: 'और जानें',
+    infoModalTitle: 'अधिक जानकारी',
+    infoModalBody: 'अधिक विवरण देखने के लिए निःशुल्क लॉगिन करें।',
+    close: 'बंद करें',
+    financialHelpVideos: 'वित्तीय सहायता वीडिओ',
+    testimonialsHeader: 'हमारे उपयोगकर्ताओं की राय',
+    listening: 'आपकी भाषा सुन रहे हैं...',
+    notListening: 'सुन नहीं रहे',
+    brand: 'अर्थसेतू',
+    dashboard: 'डैशबोर्ड पर जाएं',
+  },
+  mr: {
+    features: [
+      { icon: 'fa-user-graduate', title: 'आर्थिक साक्षरता', desc: 'पैसे, बचत आणि गुंतवणुकीच्या मूलभूत गोष्टी शिका.' },
+      { icon: 'fa-bullseye', title: 'लक्ष्य निर्धारण', desc: 'आपली आर्थिक उद्दिष्टे ठरवा, ट्रॅक करा आणि साध्य करा.' },
+      { icon: 'fa-lightbulb', title: 'वैयक्तिक सल्ला', desc: 'आपल्या गरजांसाठी वैयक्तिकृत आर्थिक मार्गदर्शन मिळवा.' },
+      { icon: 'fa-wallet', title: 'बजेटिंग साधने', desc: 'स्मार्ट साधनांसह आपला खर्च नियोजित करा आणि व्यवस्थापित करा.' },
+      { icon: 'fa-chart-pie', title: 'गुंतवणूक शिक्षण', desc: 'गुंतवणूक पर्याय समजून घ्या आणि आपली संपत्ती वाढवा.' },
+      { icon: 'fa-credit-card', title: 'क्रेडिट सुधारणा', desc: 'चांगला क्रेडिट तयार करण्यासाठी आणि राखण्यासाठी टिप्स आणि साधने.' },
+    ],
+    stats: [
+      { value: '1M+', label: 'आनंदी ग्राहक' },
+      { value: '₹5000+ Cr', label: 'व्यवहार' },
+      { value: '4.8/5', label: 'अ‍ॅप स्टोअर रेटिंग' },
+      { value: '99.99%', label: 'अपटाइम' },
+    ],
+    testimonials: [
+      { name: 'Amit S.', text: 'अर्थसेतू (Bridge to finance) मुळे माझे आर्थिक व्यवस्थापन खूप सोपे झाले. अत्यंत शिफारस!' },
+      { name: 'Priya K.', text: 'अ‍ॅप खूपच सोपे आहे आणि सपोर्ट उत्कृष्ट आहे.' },
+      { name: 'Ramesh V.', text: 'मला गुंतवणूक पर्याय आणि सुरक्षा वैशिष्ट्ये खूप आवडतात.' },
+    ],
+    securityBadges: [
+      { icon: 'fa-shield-alt', label: '256-बिट SSL एनक्रिप्शन' },
+      { icon: 'fa-lock', label: '2FA सक्षम' },
+      { icon: 'fa-university', label: 'RBI अनुरूप' },
+      { icon: 'fa-user-check', label: 'KYC सत्यापित' },
+    ],
+    learnMore: 'अधिक जाणून घ्या',
+    infoModalTitle: 'अधिक माहिती',
+    infoModalBody: 'अधिक तपशील पाहण्यासाठी मोफत लॉगिन करा.',
+    close: 'बंद करा',
+    financialHelpVideos: 'आर्थिक मदत व्हिडिओ',
+    testimonialsHeader: 'आमच्या वापरकर्त्यांचे मत',
+    listening: 'आपली भाषा ऐकत आहे...',
+    notListening: 'ऐकत नाही',
+    brand: 'अर्थसेतू',
+    dashboard: 'डॅशबोर्डवर जा',
+  },
+};
+
 const Home = () => {
-  // All hooks must be at the top level
-  const [language, setLanguage] = useState('');
+  const { language, setLanguage } = useLanguage();
+  const t = translations[language] || translations.en;
   const [listening, setListening] = useState(false);
   const [speechError, setSpeechError] = useState('');
   const recognitionRef = useRef(null);
   const autoRestartRef = useRef(true);
-  const [showLangModal, setShowLangModal] = useState(true);
+  const [showLangModal, setShowLangModal] = useState(!language);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const navigate = useNavigate();
 
   // Only after hooks: check the route and return null if not on home
   if (window.location.pathname !== '/') return null;
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!language) {
       setShowLangModal(true);
       const synth = window.speechSynthesis;
       if (synth) {
-        const utter = new window.SpeechSynthesisUtterance(
-          'Please select your language: English, Hindi, or Marathi.'
-        );
+        const utter = new window.SpeechSynthesisUtterance(languagePrompts['en']);
         utter.lang = 'en-IN';
         synth.cancel();
         synth.speak(utter);
@@ -133,7 +252,6 @@ const Home = () => {
     }
   }, [language]);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (language) {
       if (recognitionRef.current) {
@@ -203,6 +321,22 @@ const Home = () => {
       recognitionRef.current.stop();
     }
     setLanguage(lang);
+  };
+
+  // Translations for welcome banner (add more as needed)
+  const welcomeTexts = {
+    en: {
+      title: `Welcome to ${t.brand} (Bridge to finance)`,
+      subtitle: 'Your personal financial guidance app—empowering you to make smarter money decisions, save more, and achieve your financial goals with confidence.'
+    },
+    hi: {
+      title: `${t.brand} (Bridge to finance) में आपका स्वागत है`,
+      subtitle: 'आपका व्यक्तिगत वित्तीय मार्गदर्शन ऐप—स्मार्ट पैसे के निर्णय लेने, अधिक बचत करने, और आत्मविश्वास के साथ अपने वित्तीय लक्ष्यों को प्राप्त करने के लिए।'
+    },
+    mr: {
+      title: `${t.brand} (Bridge to finance) मध्ये आपले स्वागत आहे`,
+      subtitle: 'आपला वैयक्तिक आर्थिक मार्गदर्शन अ‍ॅप—शहाणपणाने पैसे व्यवस्थापित करा, जास्त बचत करा, आणि आत्मविश्वासाने आपले आर्थिक उद्दिष्ट साध्य करा.'
+    }
   };
 
   return (
@@ -281,12 +415,12 @@ const Home = () => {
               <div className="modal-header">
                 <h5 className="modal-title text-primary">
                   <i className="fas fa-language me-2"></i>
-                  Select Your Language
+                  {languagePrompts[language || 'en']}
                 </h5>
                 <button type="button" className="btn-close" onClick={() => {}} aria-label="Close" disabled></button>
               </div>
               <div className="modal-body">
-                <p className="mb-4">Please select your language:</p>
+                <p className="mb-4">{languagePrompts[language || 'en']}</p>
                 <div className="d-flex flex-column gap-3 align-items-center">
                   <button className="btn btn-outline-primary btn-lg w-100" onClick={() => handleSetLanguage('en')}>English</button>
                   <button className="btn btn-outline-primary btn-lg w-100" onClick={() => handleSetLanguage('hi')}>हिन्दी (Hindi)</button>
@@ -294,7 +428,7 @@ const Home = () => {
                   <div className="mt-3">
                     <span className="badge bg-secondary">
                       <i className={`fas fa-microphone${listening ? '-alt' : ''} me-2`}></i>
-                      {listening ? 'Listening for your language...' : 'Not listening'}
+                      {listening ? translations[language].listening : translations[language].notListening}
                     </span>
                   </div>
                   {speechError && <div className="alert alert-danger mt-3" role="alert">{speechError}</div>}
@@ -328,15 +462,15 @@ const Home = () => {
               <div className="modal-header">
                 <h5 className="modal-title text-primary">
                   <i className="fas fa-info-circle me-2"></i>
-                  More Information
+                  {translations[language].infoModalTitle}
                 </h5>
                 <button type="button" className="btn-close" onClick={() => setShowInfoModal(false)} aria-label="Close"></button>
               </div>
               <div className="modal-body">
-                <p className="mb-0">Login for free to check out more details.</p>
+                <p className="mb-0">{translations[language].infoModalBody}</p>
               </div>
               <div className="modal-footer">
-                <button className="btn btn-primary" onClick={() => setShowInfoModal(false)}>Close</button>
+                <button className="btn btn-primary" onClick={() => setShowInfoModal(false)}>{translations[language].close}</button>
               </div>
             </div>
           </div>
@@ -347,8 +481,8 @@ const Home = () => {
       {!showLangModal && (
         <div className="container mb-5">
           <div className="py-5 px-3 rounded shadow-sm" style={{ maxWidth: 700, margin: '0 auto', background: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(4px)' }}>
-            <h1 className="arthsetu-welcome mb-2">Welcome to ArthSetu (Bridge to finance)</h1>
-            <p className="arthsetu-subtitle lead text-muted mb-4">Your personal financial guidance app—empowering you to make smarter money decisions, save more, and achieve your financial goals with confidence.</p>
+            <h1 className="arthsetu-welcome mb-2">{welcomeTexts[language]?.title || welcomeTexts['en'].title}</h1>
+            <p className="arthsetu-subtitle lead text-muted mb-4">{welcomeTexts[language]?.subtitle || welcomeTexts['en'].subtitle}</p>
           </div>
         </div>
       )}
@@ -356,13 +490,13 @@ const Home = () => {
       {/* Features Grid */}
       <div className="container mb-5">
         <div className="row g-4 justify-content-center">
-          {features.map((f, idx) => (
+          {translations[language].features.map((f, idx) => (
             <div className="col-6 col-md-4 col-lg-2" key={idx}>
               <div className="p-4 bg-white rounded shadow-sm h-100 d-flex flex-column align-items-center justify-content-between">
                 <i className={`fas ${f.icon} fa-2x text-primary mb-3`}></i>
                 <h6 className="fw-bold mb-1">{f.title}</h6>
                 <p className="text-muted small mb-2">{f.desc}</p>
-                <button className="btn btn-outline-primary btn-sm mt-auto" style={{ marginTop: 'auto' }} onClick={() => setShowInfoModal(true)}>Learn More</button>
+                <button className="btn btn-outline-primary btn-sm mt-auto" style={{ marginTop: 'auto' }} onClick={() => setShowInfoModal(true)}>{translations[language].learnMore}</button>
               </div>
             </div>
           ))}
@@ -372,7 +506,7 @@ const Home = () => {
       {/* Quick Stats */}
       <div className="container mb-5">
         <div className="row g-4 justify-content-center">
-          {stats.map((s, idx) => (
+          {translations[language].stats.map((s, idx) => (
             <div className="col-6 col-md-3" key={idx}>
               <div className="p-4 bg-white rounded shadow-sm h-100 d-flex flex-column align-items-center">
                 <h2 className="fw-bold text-success mb-1">{s.value}</h2>
@@ -385,7 +519,7 @@ const Home = () => {
 
       {/* Financial Help Videos Section (Horizontal Scroll) */}
       <div className="container mb-5">
-        <h4 className="fw-bold text-primary mb-4 text-center">Financial Help Videos</h4>
+        <h4 className="fw-bold text-primary mb-4 text-center">{translations[language].financialHelpVideos}</h4>
         <div
           style={{
             display: 'flex',
@@ -432,9 +566,9 @@ const Home = () => {
 
       {/* Testimonials */}
       <div className="container mb-5">
-        <h4 className="fw-bold text-primary mb-4 text-center">What Our Users Say</h4>
-        <div className="row g-4 justify-content-center">
-          {testimonials.map((t, idx) => (
+        <h4 className="fw-bold text-primary mb-4 text-center">{translations[language].testimonialsHeader}</h4>
+                <div className="row g-4 justify-content-center">
+          {translations[language].testimonials.map((t, idx) => (
             <div className="col-md-4" key={idx}>
               <div className="p-4 bg-white rounded shadow-sm h-100">
                 <i className="fas fa-quote-left fa-lg text-primary mb-3"></i>
@@ -449,7 +583,7 @@ const Home = () => {
       {/* Security Badges */}
       <div className="container mb-5">
         <div className="d-flex flex-wrap justify-content-center gap-4">
-          {securityBadges.map((b, idx) => (
+          {translations[language].securityBadges.map((b, idx) => (
             <div key={idx} className="d-flex align-items-center gap-2 bg-white px-3 py-2 rounded shadow-sm">
               <i className={`fas ${b.icon} text-success`}></i>
               <span className="fw-semibold text-muted small">{b.label}</span>

@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const steps = [
   { name: 'Basic Info', icon: 'fas fa-user' }, // state, user type, age, gender
@@ -57,6 +58,7 @@ const initialProfile = {
 };
 
 function Onboarding() {
+  const { language } = useLanguage();
   const [step, setStep] = useState(0);
   // Update profile state to include new fields and remove savings/old expenses
   const [profile, setProfile] = useState({
@@ -77,6 +79,124 @@ function Onboarding() {
   const [showGoalSuggestions, setShowGoalSuggestions] = useState(false);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+
+  const translations = {
+    en: {
+      completeProfile: 'Complete Your Profile',
+      loadingProfile: 'Loading your profile...',
+      step: 'Step',
+      of: 'of',
+      basicInfo: 'Basic Info',
+      financialInfo: 'Financial Info',
+      whichState: 'Which state do you live in?',
+      selectState: 'Select your state...',
+      userType: 'What type of user are you?',
+      selectType: 'Choose your type...',
+      individual: 'Individual',
+      vendor: 'Micro and small entrepreneurs',
+      community: 'Community helpers',
+      farmer: 'Farmer',
+      other: 'Other',
+      age: 'What is your age?',
+      gender: 'What is your gender?',
+      selectGender: 'Select gender...',
+      male: 'Male',
+      female: 'Female',
+      otherGender: 'Other',
+      goals: 'What are your main financial goals?',
+      income: 'What is your average monthly income?',
+      savings: 'What are your average monthly savings?',
+      bpl: 'Do you belong to BPL category?',
+      yes: 'Yes',
+      no: 'No',
+      back: 'Back',
+      next: 'Next',
+      complete: 'Complete Profile',
+      saving: 'Saving...',
+      profileSaved: 'Profile saved! Redirecting...',
+      profileUpdated: 'Profile updated! Redirecting...',
+      goToDashboard: 'Go to Dashboard',
+      errorMustLogin: 'You must be logged in to complete onboarding.',
+      errorSave: 'Failed to save profile: ',
+    },
+    hi: {
+      completeProfile: 'अपना प्रोफ़ाइल पूरा करें',
+      loadingProfile: 'आपकी प्रोफ़ाइल लोड हो रही है...',
+      step: 'चरण',
+      of: 'में से',
+      basicInfo: 'मूल जानकारी',
+      financialInfo: 'वित्तीय जानकारी',
+      whichState: 'आप किस राज्य में रहते हैं?',
+      selectState: 'अपना राज्य चुनें...',
+      userType: 'आप किस प्रकार के उपयोगकर्ता हैं?',
+      selectType: 'अपना प्रकार चुनें...',
+      individual: 'व्यक्ति',
+      vendor: 'सूक्ष्म और लघु उद्यमी',
+      community: 'सामुदायिक सहायक',
+      farmer: 'किसान',
+      other: 'अन्य',
+      age: 'आपकी आयु क्या है?',
+      gender: 'आपका लिंग क्या है?',
+      selectGender: 'लिंग चुनें...',
+      male: 'पुरुष',
+      female: 'महिला',
+      otherGender: 'अन्य',
+      goals: 'आपके मुख्य वित्तीय लक्ष्य क्या हैं?',
+      income: 'आपकी औसत मासिक आय क्या है?',
+      savings: 'आपकी औसत मासिक बचत क्या है?',
+      bpl: 'क्या आप बीपीएल श्रेणी में आते हैं?',
+      yes: 'हाँ',
+      no: 'नहीं',
+      back: 'पीछे',
+      next: 'आगे',
+      complete: 'प्रोफ़ाइल पूरा करें',
+      saving: 'सहेज रहे हैं...',
+      profileSaved: 'प्रोफ़ाइल सहेजी गई! पुनः निर्देशित किया जा रहा है...',
+      profileUpdated: 'प्रोफ़ाइल अपडेट की गई! पुनः निर्देशित किया जा रहा है...',
+      goToDashboard: 'डैशबोर्ड पर जाएं',
+      errorMustLogin: 'ऑनबोर्डिंग पूरा करने के लिए आपको लॉगिन करना होगा।',
+      errorSave: 'प्रोफ़ाइल सहेजने में विफल: ',
+    },
+    mr: {
+      completeProfile: 'आपली प्रोफाइल पूर्ण करा',
+      loadingProfile: 'आपली प्रोफाइल लोड होत आहे...',
+      step: 'पायरी',
+      of: 'पैकी',
+      basicInfo: 'मूल माहिती',
+      financialInfo: 'आर्थिक माहिती',
+      whichState: 'आपण कोणत्या राज्यात राहता?',
+      selectState: 'आपले राज्य निवडा...',
+      userType: 'आपण कोणत्या प्रकारचे वापरकर्ता आहात?',
+      selectType: 'आपला प्रकार निवडा...',
+      individual: 'वैयक्तिक',
+      vendor: 'सूक्ष्म आणि लघु उद्योजक',
+      community: 'सामुदायिक मदतनीस',
+      farmer: 'शेतकरी',
+      other: 'इतर',
+      age: 'आपले वय किती आहे?',
+      gender: 'आपला लिंग काय आहे?',
+      selectGender: 'लिंग निवडा...',
+      male: 'पुरुष',
+      female: 'महिला',
+      otherGender: 'इतर',
+      goals: 'आपले मुख्य आर्थिक उद्दिष्टे कोणती?',
+      income: 'आपली सरासरी मासिक उत्पन्न किती आहे?',
+      savings: 'आपली सरासरी मासिक बचत किती आहे?',
+      bpl: 'आपण बीपीएल श्रेणीत येता का?',
+      yes: 'होय',
+      no: 'नाही',
+      back: 'मागे',
+      next: 'पुढे',
+      complete: 'प्रोफाइल पूर्ण करा',
+      saving: 'साठवत आहे...',
+      profileSaved: 'प्रोफाइल जतन केले! पुनर्निर्देशित करत आहे...',
+      profileUpdated: 'प्रोफाइल अपडेट केले! पुनर्निर्देशित करत आहे...',
+      goToDashboard: 'डॅशबोर्डवर जा',
+      errorMustLogin: 'ऑनबोर्डिंग पूर्ण करण्यासाठी आपल्याला लॉगिन करणे आवश्यक आहे.',
+      errorSave: 'प्रोफाइल जतन करण्यात अयशस्वी: ',
+    }
+  };
+  const t = translations[language] || translations.en;
 
   // Prefill onboarding form with existing profile
   useEffect(() => {
@@ -126,7 +246,7 @@ function Onboarding() {
 
   const handleFinish = async () => {
     if (!currentUser) {
-      setError('You must be logged in to complete onboarding.');
+      setError(t.errorMustLogin);
       return;
     }
     setLoading(true);
@@ -156,7 +276,7 @@ function Onboarding() {
       }
       setTimeout(() => navigate('/dashboard'), 1200);
     } catch (err) {
-      setError('Failed to save profile: ' + err.message);
+      setError(t.errorSave + err.message);
     }
     setLoading(false);
   };
@@ -171,7 +291,7 @@ function Onboarding() {
     return (
       <div className="container py-5 text-center">
         <span className="spinner-border text-primary me-2"></span>
-        <span>Loading your profile...</span>
+        <span>{t.loadingProfile}</span>
       </div>
     );
   }
@@ -181,7 +301,7 @@ function Onboarding() {
       <div className="mb-4 text-center">
         <h2 className="fw-bold text-primary mb-3">
           <i className="fas fa-user-plus me-2"></i>
-          Complete Your Profile
+          {t.completeProfile}
         </h2>
         <div className="progress my-4" style={{height: '10px'}}>
           <div 
@@ -203,7 +323,7 @@ function Onboarding() {
         </div>
         <div className="mb-3">
           <span className="badge bg-primary bg-opacity-10 text-primary px-4 py-2 fs-6">
-            <i className={steps[step].icon}></i> Step {step + 1} of {steps.length}: {steps[step].name}
+            <i className={steps[step].icon}></i> {t.step} {step + 1} {t.of} {steps.length}: {steps[step].name}
           </span>
         </div>
         <p className="text-muted">{steps[step].description}</p>
@@ -214,10 +334,10 @@ function Onboarding() {
         <div className="text-center my-4">
           <div className="alert alert-success" role="alert">
             <i className="fas fa-check-circle me-2"></i>
-            Profile saved! Redirecting...
+            {t.profileSaved}
           </div>
           <button className="btn btn-success btn-lg px-5 fw-bold mt-3" onClick={() => navigate('/dashboard')}>
-            Go to Dashboard <i className="fas fa-arrow-right ms-2"></i>
+            {t.goToDashboard} <i className="fas fa-arrow-right ms-2"></i>
           </button>
         </div>
       )}
@@ -225,10 +345,10 @@ function Onboarding() {
         <div className="text-center my-4">
           <div className="alert alert-info" role="alert">
             <i className="fas fa-sync-alt me-2"></i>
-            Profile updated! Redirecting...
+            {t.profileUpdated}
           </div>
           <button className="btn btn-success btn-lg px-5 fw-bold mt-3" onClick={() => navigate('/dashboard')}>
-            Go to Dashboard <i className="fas fa-arrow-right ms-2"></i>
+            {t.goToDashboard} <i className="fas fa-arrow-right ms-2"></i>
           </button>
         </div>
       )}
@@ -238,7 +358,7 @@ function Onboarding() {
           <div>
             <label htmlFor="state" className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-map-marker-alt me-2 text-primary"></i>
-              Which state do you live in?
+              {t.whichState}
             </label>
             <select
               className="form-select form-select-lg mb-3"
@@ -247,7 +367,7 @@ function Onboarding() {
               id="state"
               required
             >
-              <option value="">Select your state...</option>
+              <option value="">{t.selectState}</option>
               {indianStates.map(state => (
                 <option key={state} value={state}>{state}</option>
               ))}
@@ -255,7 +375,7 @@ function Onboarding() {
 
             <label htmlFor="userType" className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-user me-2 text-primary"></i>
-              What type of user are you?
+              {t.userType}
             </label>
             <select
               className="form-select form-select-lg mb-3"
@@ -264,17 +384,17 @@ function Onboarding() {
               id="userType"
               required
             >
-              <option value="">Choose your type...</option>
-              <option value="individual">Individual</option>
-              <option value="vendor">Micro and small entrepreneurs</option>
-              <option value="community">Community helpers</option>
-              <option value="farmer">Farmer</option>
-              <option value="other">Other</option>
+              <option value="">{t.selectType}</option>
+              <option value="individual">{t.individual}</option>
+              <option value="vendor">{t.vendor}</option>
+              <option value="community">{t.community}</option>
+              <option value="farmer">{t.farmer}</option>
+              <option value="other">{t.other}</option>
             </select>
 
             <label htmlFor="age" className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-birthday-cake me-2 text-primary"></i>
-              What is your age?
+              {t.age}
             </label>
             <input
               type="number"
@@ -289,7 +409,7 @@ function Onboarding() {
 
             <label htmlFor="gender" className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-venus-mars me-2 text-primary"></i>
-              What is your gender?
+              {t.gender}
             </label>
             <select
               className="form-select form-select-lg mb-3"
@@ -298,10 +418,10 @@ function Onboarding() {
               id="gender"
               required
             >
-              <option value="">Select gender...</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="">{t.selectGender}</option>
+              <option value="male">{t.male}</option>
+              <option value="female">{t.female}</option>
+              <option value="other">{t.otherGender}</option>
             </select>
           </div>
         )}
@@ -310,7 +430,7 @@ function Onboarding() {
           <div>
             <label htmlFor="goals" className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-bullseye me-2 text-primary"></i>
-              What are your main financial goals?
+              {t.goals}
             </label>
             <input
               className="form-control form-control-lg mb-3"
@@ -322,7 +442,7 @@ function Onboarding() {
 
             <label htmlFor="income" className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-money-bill-wave me-2 text-primary"></i>
-              What is your average monthly income?
+              {t.income}
             </label>
             <input
               type="number"
@@ -335,7 +455,7 @@ function Onboarding() {
             />
             <label htmlFor="savings" className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-piggy-bank me-2 text-primary"></i>
-              What are your average monthly savings?
+              {t.savings}
             </label>
             <input
               type="number"
@@ -349,7 +469,7 @@ function Onboarding() {
 
             <label className="form-label fw-semibold text-dark mb-3">
               <i className="fas fa-id-card me-2 text-primary"></i>
-              Do you belong to BPL category?
+              {t.bpl}
             </label>
             <div className="mb-3 d-flex gap-4 align-items-center justify-content-start">
               <div className="form-check">
@@ -362,7 +482,7 @@ function Onboarding() {
                   checked={profile.bplCategory === 'yes'}
                   onChange={e => handleChange('bplCategory', e.target.value)}
                 />
-                <label className="form-check-label" htmlFor="bplYes">Yes</label>
+                <label className="form-check-label" htmlFor="bplYes">{t.yes}</label>
               </div>
               <div className="form-check">
                 <input
@@ -374,7 +494,7 @@ function Onboarding() {
                   checked={profile.bplCategory === 'no'}
                   onChange={e => handleChange('bplCategory', e.target.value)}
                 />
-                <label className="form-check-label" htmlFor="bplNo">No</label>
+                <label className="form-check-label" htmlFor="bplNo">{t.no}</label>
               </div>
             </div>
           </div>
@@ -389,7 +509,7 @@ function Onboarding() {
           aria-label="Go to previous step"
         >
           <i className="fas fa-arrow-left me-2"></i>
-          Back
+          {t.back}
         </button>
         {step < steps.length - 1 ? (
           <button 
@@ -398,7 +518,7 @@ function Onboarding() {
             disabled={loading}
             aria-label="Go to next step"
           >
-            Next
+            {t.next}
             <i className="fas fa-arrow-right ms-2"></i>
           </button>
         ) : (
@@ -411,12 +531,12 @@ function Onboarding() {
             {loading ? (
               <>
                 <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Saving...
+                {t.saving}
               </>
             ) : (
               <>
                 <i className="fas fa-check me-2"></i>
-                Complete Profile
+                {t.complete}
               </>
             )}
           </button>
@@ -429,7 +549,7 @@ function Onboarding() {
           onClick={() => navigate('/dashboard')}
           aria-label="Go to dashboard"
         >
-          Go to Dashboard <i className="fas fa-arrow-right ms-2"></i>
+          {t.goToDashboard} <i className="fas fa-arrow-right ms-2"></i>
         </button>
       </div>
     </div>

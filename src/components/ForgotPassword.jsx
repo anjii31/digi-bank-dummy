@@ -84,28 +84,37 @@ function ForgotPassword() {
       reset: 'Reset Password',
       instruction: 'Enter your email to receive reset instructions',
       email: 'Email address',
+      emailPlaceholder: 'Enter your email address',
       submit: 'Send Reset Link',
       security: '256-bit SSL Encryption',
       voice: 'Voice commands available - Click the microphone button',
-      back: 'Back to Login'
+      back: 'Back to Login',
+      brand: 'ArthSetu',
+      digitalBanking: 'Digital Banking Solutions',
     },
     hi: {
       reset: 'पासवर्ड रीसेट करें',
       instruction: 'रीसेट निर्देश प्राप्त करने के लिए अपना ईमेल दर्ज करें',
       email: 'ईमेल पता',
+      emailPlaceholder: 'अपना ईमेल पता दर्ज करें',
       submit: 'रीसेट लिंक भेजें',
       security: '256-बिट SSL एन्क्रिप्शन',
       voice: 'वॉइस कमांड उपलब्ध हैं - माइक्रोफोन बटन पर क्लिक करें',
-      back: 'लॉगिन पर वापस जाएँ'
+      back: 'लॉगिन पर वापस जाएँ',
+      brand: 'अर्थसेतू',
+      digitalBanking: 'डिजिटल बैंकिंग समाधान',
     },
     mr: {
       reset: 'पासवर्ड रीसेट करा',
       instruction: 'रीसेट सूचना मिळवण्यासाठी आपला ईमेल प्रविष्ट करा',
       email: 'ईमेल पत्ता',
+      emailPlaceholder: 'आपला ईमेल पत्ता प्रविष्ट करा',
       submit: 'रीसेट लिंक पाठवा',
       security: '256-बिट SSL एनक्रिप्शन',
       voice: 'व्हॉइस कमांड उपलब्ध आहेत - मायक्रोफोन बटणावर क्लिक करा',
-      back: 'लॉगिनवर परत जा'
+      back: 'लॉगिनवर परत जा',
+      brand: 'अर्थसेतू',
+      digitalBanking: 'डिजिटल बँकिंग सोल्यूशन्स',
     }
   };
   const t = translations[language] || translations.en;
@@ -126,8 +135,8 @@ function ForgotPassword() {
                       <i className="fas fa-university text-white fs-4"></i>
                     </div>
                     <div>
-                      <h3 className="mb-0 text-primary fw-bold">ArthSetu (Bridge to Finance)</h3>
-                      <small className="text-muted">Digital Banking Solutions</small>
+                      <h3 className="mb-0 text-primary fw-bold">{t.brand}</h3>
+                      <small className="text-muted">{t.digitalBanking}</small>
                     </div>
                   </div>
                 </div>
@@ -174,7 +183,7 @@ function ForgotPassword() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="form-control border-start-0" 
-                        placeholder={`${t.email} or say 'my ${t.email} is' followed by your ${t.email}`}
+                        placeholder={t.email + " or say 'my " + t.email + " is' followed by your " + t.email}
                         required
                       />
                     </div>

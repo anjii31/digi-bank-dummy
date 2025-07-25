@@ -19,6 +19,7 @@ import investmentPlannerPrompt from '../llm_promts/investment_planner_prompt.txt
 import investmentPlannerSample from '../llm_promts/investment_planner_sample_response.json'; // Will use dynamic import
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { useLanguage } from '../contexts/LanguageContext';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -157,6 +158,7 @@ function highlightInvestmentKeywords(text) {
 
 const InvestmentPlanner = () => {
   const { currentUser } = useAuth();
+  const { language } = useLanguage();
   const [profile, setProfile] = useState(null);
   const [income, setIncome] = useState('');
   const [savings, setSavings] = useState('');
@@ -283,6 +285,73 @@ const InvestmentPlanner = () => {
     pdf.save('investment-planner.pdf');
   };
 
+  const translations = {
+    en: {
+      planner: 'Investment Planner',
+      monthlyIncome: 'Monthly Income',
+      monthlySavings: 'Monthly Savings',
+      duration: 'Investment Duration (years)',
+      risk: 'Risk Level',
+      getPlan: 'Get Plan',
+      generating: 'Generating...',
+      downloadPDF: 'Download as PDF',
+      summary: 'Your Personalized Investment Plan',
+      stepByStep: 'Step-by-Step Plan',
+      calculationsTable: 'Calculations Table',
+      projectedGrowth: 'Projected Growth',
+      didNotLike: 'Did not like your personalized plan? No worries!',
+      regenerate: 'Click here to generate new plan',
+      error: 'Error fetching investment plan.',
+      totalInvested: 'Total Invested',
+      maturityValue: 'Maturity Value',
+      year: 'Year',
+      value: 'Value (₹)',
+    },
+    hi: {
+      planner: 'निवेश योजनाकार',
+      monthlyIncome: 'मासिक आय',
+      monthlySavings: 'मासिक बचत',
+      duration: 'निवेश अवधि (वर्ष)',
+      risk: 'जोखिम स्तर',
+      getPlan: 'योजना प्राप्त करें',
+      generating: 'बना रहे हैं...',
+      downloadPDF: 'PDF डाउनलोड करें',
+      summary: 'आपकी व्यक्तिगत निवेश योजना',
+      stepByStep: 'चरण-दर-चरण योजना',
+      calculationsTable: 'गणना तालिका',
+      projectedGrowth: 'अनुमानित वृद्धि',
+      didNotLike: 'क्या आपको आपकी व्यक्तिगत योजना पसंद नहीं आई? कोई बात नहीं!',
+      regenerate: 'नई योजना बनाने के लिए यहां क्लिक करें',
+      error: 'निवेश योजना प्राप्त करने में त्रुटि।',
+      totalInvested: 'कुल निवेश',
+      maturityValue: 'परिपक्वता मूल्य',
+      year: 'वर्ष',
+      value: 'मूल्य (₹)',
+    },
+    mr: {
+      planner: 'गुंतवणूक नियोजक',
+      monthlyIncome: 'मासिक उत्पन्न',
+      monthlySavings: 'मासिक बचत',
+      duration: 'गुंतवणूक कालावधी (वर्ष)',
+      risk: 'जोखीम स्तर',
+      getPlan: 'योजना मिळवा',
+      generating: 'तयार करत आहे...',
+      downloadPDF: 'PDF डाउनलोड करा',
+      summary: 'आपली वैयक्तिकृत गुंतवणूक योजना',
+      stepByStep: 'पायरी-पायरीने योजना',
+      calculationsTable: 'गणना तक्ता',
+      projectedGrowth: 'अनुमानित वाढ',
+      didNotLike: 'आपली वैयक्तिकृत योजना आवडली नाही? काळजी करू नका!',
+      regenerate: 'नवीन योजना तयार करण्यासाठी येथे क्लिक करा',
+      error: 'गुंतवणूक योजना मिळवताना त्रुटी.',
+      totalInvested: 'एकूण गुंतवणूक',
+      maturityValue: 'परिपक्वता मूल्य',
+      year: 'वर्ष',
+      value: 'मूल्य (₹)',
+    }
+  };
+  const t = translations[language] || translations.en;
+
   return (
     <div style={{ position: 'relative', minHeight: '100vh', width: '100vw', overflow: 'hidden' }}>
       {/* Fullscreen background image and overlay */}
@@ -307,36 +376,36 @@ const InvestmentPlanner = () => {
               style={{ top: 16, right: 16, zIndex: 2 }}
               onClick={handleDownloadPDF}
             >
-              <i className="fas fa-download me-2"></i>Download as PDF
+              <i className="fas fa-download me-2"></i>{t.downloadPDF}
             </button>
             <div id="investment-planner-pdf-content">
-              <h2 className="fw-bold text-primary mb-4"><i className="fas fa-chart-line me-2"></i>Investment Planner</h2>
+              <h2 className="fw-bold text-primary mb-4"><i className="fas fa-chart-line me-2"></i>{t.planner}</h2>
               <div className="row g-3 mb-3">
                 <div className="col-md-6">
-                  <label className="form-label">Monthly Income</label>
+                  <label className="form-label">{t.monthlyIncome}</label>
                   <input type="number" className="form-control" value={income} onChange={e => setIncome(e.target.value)} min="0" />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">Monthly Savings</label>
+                  <label className="form-label">{t.monthlySavings}</label>
                   <input type="number" className="form-control" value={savings} onChange={e => setSavings(e.target.value)} min="0" />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">Investment Duration (years)</label>
+                  <label className="form-label">{t.duration}</label>
                   <select className="form-select" value={duration} onChange={e => setDuration(Number(e.target.value))}>
                     {durations.map(d => <option key={d} value={d}>{d}</option>)}
                   </select>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label">Risk Level</label>
+                  <label className="form-label">{t.risk}</label>
                   <select className="form-select" value={risk} onChange={e => setRisk(e.target.value)}>
                     {risks.map(r => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
               </div>
               <motion.button className="btn btn-primary mb-3" onClick={handleGetPlan} disabled={loading} whileTap={{ scale: 0.95 }}>
-                {loading ? 'Generating...' : 'Get Plan'}
+                {loading ? t.generating : t.getPlan}
               </motion.button>
-              {error && <div className="alert alert-danger mt-3">{error}</div>}
+              {error && <div className="alert alert-danger mt-3">{t.error}</div>}
               {/* Animated Summary Cards */}
               {summaryNumbers.length > 0 && (
                 <div className="row mb-4">
@@ -357,7 +426,7 @@ const InvestmentPlanner = () => {
               {aiResponse && (
                 <motion.div className="card border-0 shadow-sm mb-4" initial="hidden" animate="visible" variants={fadeIn}>
                   <div className="card-body">
-                    <h5 className="fw-bold text-success mb-3"><i className="fas fa-lightbulb me-2"></i>Your Personalized Investment Plan</h5>
+                    <h5 className="fw-bold text-success mb-3"><i className="fas fa-lightbulb me-2"></i>{t.summary}</h5>
                     {/* Show the first non-redundant line as summary */}
                     <div style={{ whiteSpace: 'pre-line', textAlign: 'left' }}>
                       {aiResponse.split('\n').find(line => line.trim() && !isRedundantInfo(line))}
@@ -368,7 +437,7 @@ const InvestmentPlanner = () => {
               {/* Steps Timeline - Redesigned */}
               {aiSteps.length > 0 && (
                 <motion.div className="mb-4" initial="hidden" animate="visible" variants={fadeIn}>
-                  <h6 className="fw-bold text-primary mb-3">Step-by-Step Plan</h6>
+                  <h6 className="fw-bold text-primary mb-3">{t.stepByStep}</h6>
                   <div className="position-relative" style={{ paddingLeft: 36, minHeight: 60 }}>
                     {/* Vertical line */}
                     <div style={{
@@ -443,7 +512,7 @@ const InvestmentPlanner = () => {
               {(tableData || aiResponse) && (
                 <motion.div className="card border-0 shadow-sm mb-4" initial="hidden" animate="visible" variants={fadeIn}>
                   <div className="card-body">
-                    <h6 className="fw-bold text-primary mb-3"><i className="fas fa-table me-2"></i>Calculations Table</h6>
+                    <h6 className="fw-bold text-primary mb-3"><i className="fas fa-table me-2"></i>{t.calculationsTable}</h6>
                     <div className="table-responsive">
                       <table className="table table-bordered table-sm mb-0" style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,123,255,0.08)' }}>
                         <thead style={{ background: 'linear-gradient(90deg, #007bff 0%, #20c997 100%)', color: '#fff' }}>
@@ -486,13 +555,13 @@ const InvestmentPlanner = () => {
               {chartData && (
                 <motion.div className="card border-0 shadow-sm mb-4" initial="hidden" animate="visible" variants={fadeIn}>
                   <div className="card-body">
-                    <h6 className="fw-bold text-primary mb-2">Projected Growth</h6>
+                    <h6 className="fw-bold text-primary mb-2">{t.projectedGrowth}</h6>
                     <Bar data={chartData} options={{
                       responsive: true,
                       plugins: { legend: { display: false }, tooltip: { enabled: true } },
                       scales: {
-                        x: { title: { display: true, text: 'Year' } },
-                        y: { title: { display: true, text: 'Value (₹)' }, beginAtZero: true }
+                        x: { title: { display: true, text: t.year } },
+                        y: { title: { display: true, text: t.value }, beginAtZero: true }
                       }
                     }} height={200} />
                   </div>
@@ -511,14 +580,14 @@ const InvestmentPlanner = () => {
                       opacity: labelDid ? 0.85 : 1,
                     }}
                   >
-                    {'Did not like your personalized plan? No worries!'}
+                    {t.didNotLike}
                   </span>
                   <button
                     className="btn btn-outline-primary px-4 py-2 fw-bold"
                     style={{ borderRadius: 24, fontSize: 16, boxShadow: '0 2px 8px rgba(0,123,255,0.08)' }}
                     onClick={handleRegeneratePlan}
                   >
-                    Click here to generate new plan
+                    {t.regenerate}
                   </button>
                 </div>
               )}

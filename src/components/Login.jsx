@@ -9,8 +9,10 @@ import '../App.css';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { auth } from '../firebase';
+import { useLanguage } from '../contexts/LanguageContext';
 
 function Login() {
+  const { language } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,6 +21,91 @@ function Login() {
   const [voiceFeedback, setVoiceFeedback] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const translations = {
+    en: {
+      welcomeBack: 'Welcome Back',
+      signInTo: 'Sign in to your {brand} (Bridge to finance) account',
+      email: 'Email Address',
+      emailPlaceholder: "Enter your email or say 'my email is' followed by your email",
+      password: 'Password',
+      passwordPlaceholder: "Enter your password or say 'my password is' followed by your password",
+      rememberMe: 'Remember me',
+      forgotPassword: 'Forgot Password?',
+      signingIn: 'Signing In...',
+      signIn: 'Sign In',
+      dontHaveAccount: "Don't have an account?",
+      createAccount: 'Create Account',
+      ssl: '256-bit SSL Encryption',
+      voice: 'Voice commands available - Click the microphone button',
+      failedSignIn: 'Failed to sign in: ',
+      formCleared: 'Form cleared',
+      emailSet: 'Email set to: ',
+      passwordSet: 'Password entered',
+      submitting: 'Submitting login form...',
+      navigatingSignup: 'Navigating to sign up page...',
+      processing: 'Processing: ',
+      heard: 'I heard: ',
+      tryDifferent: 'Please try a different command.',
+      brand: 'ArthSetu',
+      digitalBanking: 'Digital Banking Solutions',
+    },
+    hi: {
+      welcomeBack: 'वापसी पर स्वागत है',
+      signInTo: 'अपने अर्थसेतू (Bridge to finance) खाते में साइन इन करें',
+      email: 'ईमेल पता',
+      emailPlaceholder: "अपना ईमेल दर्ज करें या 'मेरा ईमेल है' बोलें और ईमेल बताएं",
+      password: 'पासवर्ड',
+      passwordPlaceholder: "अपना पासवर्ड दर्ज करें या 'मेरा पासवर्ड है' बोलें और पासवर्ड बताएं",
+      rememberMe: 'मुझे याद रखें',
+      forgotPassword: 'पासवर्ड भूल गए?',
+      signingIn: 'साइन इन कर रहे हैं...',
+      signIn: 'साइन इन करें',
+      dontHaveAccount: 'खाता नहीं है?',
+      createAccount: 'खाता बनाएं',
+      ssl: '256-बिट SSL एन्क्रिप्शन',
+      voice: 'वॉयस कमांड उपलब्ध - माइक्रोफोन बटन पर क्लिक करें',
+      failedSignIn: 'साइन इन विफल: ',
+      formCleared: 'फॉर्म साफ़ किया गया',
+      emailSet: 'ईमेल सेट किया गया: ',
+      passwordSet: 'पासवर्ड दर्ज किया गया',
+      submitting: 'लॉगिन फॉर्म सबमिट कर रहे हैं...',
+      navigatingSignup: 'साइन अप पेज पर जा रहे हैं...',
+      processing: 'प्रोसेस कर रहे हैं: ',
+      heard: 'मैंने सुना: ',
+      tryDifferent: 'कृपया कोई अन्य कमांड आज़माएं।',
+      brand: 'अर्थसेतू',
+      digitalBanking: 'डिजिटल बैंकिंग समाधान',
+    },
+    mr: {
+      welcomeBack: 'परत स्वागत आहे',
+      signInTo: 'आपल्या {brand} (Bridge to finance) खात्यात साइन इन करा',
+      email: 'ईमेल पत्ता',
+      emailPlaceholder: "आपला ईमेल प्रविष्ट करा किंवा 'माझा ईमेल आहे' असे बोला आणि ईमेल सांगा",
+      password: 'पासवर्ड',
+      passwordPlaceholder: "आपला पासवर्ड प्रविष्ट करा किंवा 'माझा पासवर्ड आहे' असे बोला आणि पासवर्ड सांगा",
+      rememberMe: 'मला लक्षात ठेवा',
+      forgotPassword: 'पासवर्ड विसरलात?',
+      signingIn: 'साइन इन करत आहे...',
+      signIn: 'साइन इन करा',
+      dontHaveAccount: 'खाते नाही?',
+      createAccount: 'खाते तयार करा',
+      ssl: '256-बिट SSL एनक्रिप्शन',
+      voice: 'व्हॉइस कमांड उपलब्ध - मायक्रोफोन बटणावर क्लिक करा',
+      failedSignIn: 'साइन इन अयशस्वी: ',
+      formCleared: 'फॉर्म साफ केला',
+      emailSet: 'ईमेल सेट केला: ',
+      passwordSet: 'पासवर्ड प्रविष्ट केला',
+      submitting: 'लॉगिन फॉर्म सबमिट करत आहे...',
+      navigatingSignup: 'साइन अप पेजवर जात आहे...',
+      processing: 'प्रक्रिया करत आहे: ',
+      heard: 'मी ऐकले: ',
+      tryDifferent: 'कृपया वेगळा कमांड वापरा.',
+      brand: 'अर्थसेतू',
+      digitalBanking: 'डिजिटल बँकिंग सोल्यूशन्स',
+    }
+  };
+  const t = translations[language] || translations.en;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -35,7 +122,7 @@ function Login() {
         navigate('/onboarding');
       }
     } catch (error) {
-      setError('Failed to sign in: ' + error.message);
+      setError(t.failedSignIn + error.message);
     }
     setLoading(false);
   }
@@ -48,37 +135,37 @@ function Login() {
       case 'fill':
         if (command.field === 'email') {
           setEmail(command.value);
-          setVoiceFeedback(`Email set to: ${command.value}`);
+          setVoiceFeedback(t.emailSet + command.value);
         } else if (command.field === 'password') {
           setPassword(command.value);
-          setVoiceFeedback('Password entered');
+          setVoiceFeedback(t.passwordSet);
         }
         break;
       
       case 'submit':
         handleSubmit(new Event('submit'));
-        setVoiceFeedback('Submitting login form...');
+        setVoiceFeedback(t.submitting);
         break;
       
       case 'navigate':
         if (command.target === 'signup') {
           navigate('/signup');
-          setVoiceFeedback('Navigating to sign up page...');
+          setVoiceFeedback(t.navigatingSignup);
         }
         break;
       
       case 'clear':
         setEmail('');
         setPassword('');
-        setVoiceFeedback('Form cleared');
+        setVoiceFeedback(t.formCleared);
         break;
       
       case 'unknown':
-        setVoiceFeedback(`I heard: "${transcript}". Please try a different command.`);
+        setVoiceFeedback(t.heard + `"${transcript}". ` + t.tryDifferent);
         break;
       
       default:
-        setVoiceFeedback(`Processing: ${transcript}`);
+        setVoiceFeedback(t.processing + transcript);
     }
     
     // Clear feedback after 3 seconds
@@ -101,8 +188,8 @@ function Login() {
                       <i className="fas fa-university text-white fs-4"></i>
                     </div>
                     <div>
-                      <h3 className="mb-0 text-primary fw-bold">ArthSetu</h3>
-                      <small className="text-muted">Digital Banking Solutions</small>
+                      <h3 className="mb-0 text-primary fw-bold">{t.brand}</h3>
+                      <small className="text-muted">{t.digitalBanking}</small>
                     </div>
                   </div>
                   <div className="d-flex justify-content-center gap-2 mb-3">
@@ -121,8 +208,8 @@ function Login() {
                   </div>
                 </div>
 
-                <h2 className="text-center mb-4 fw-bold text-dark">Welcome Back</h2>
-                <p className="text-center text-muted mb-4">Sign in to your ArthSetu (Bridge to finance) account</p>
+                <h2 className="text-center mb-4 fw-bold text-dark">{t.welcomeBack}</h2>
+                <p className="text-center text-muted mb-4">{t.signInTo.replace('{brand}', t.brand)}</p>
 
                 {/* Voice Feedback Alert */}
                 {voiceFeedback && (
@@ -144,7 +231,7 @@ function Login() {
                   <div className="mb-3">
                     <label htmlFor="email" className="form-label fw-semibold text-dark">
                       <i className="fas fa-envelope me-2 text-primary"></i>
-                      Email Address
+                      {t.email}
                     </label>
                     <div className="input-group">
                       <span className="input-group-text bg-light border-end-0">
@@ -156,7 +243,7 @@ function Login() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="form-control border-start-0" 
-                        placeholder="Enter your email or say 'my email is' followed by your email"
+                        placeholder={t.emailPlaceholder}
                         required
                       />
                     </div>
@@ -165,7 +252,7 @@ function Login() {
                   <div className="mb-4">
                     <label htmlFor="password" className="form-label fw-semibold text-dark">
                       <i className="fas fa-lock me-2 text-primary"></i>
-                      Password
+                      {t.password}
                     </label>
                     <div className="input-group">
                       <span className="input-group-text bg-light border-end-0">
@@ -177,7 +264,7 @@ function Login() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="form-control border-start-0" 
-                        placeholder="Enter your password or say 'my password is' followed by your password"
+                        placeholder={t.passwordPlaceholder}
                         required
                       />
                       <button 
@@ -195,11 +282,11 @@ function Login() {
                     <div className="form-check">
                       <input className="form-check-input" type="checkbox" id="remember" />
                       <label className="form-check-label text-muted" htmlFor="remember">
-                        Remember me
+                        {t.rememberMe}
                       </label>
                     </div>
                     <a href="/forgot-password" className="text-primary text-decoration-none fw-semibold">
-                      Forgot Password?
+                      {t.forgotPassword}
                     </a>
                   </div>
 
@@ -211,20 +298,20 @@ function Login() {
                     {loading ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Signing In...
+                        {t.signingIn}
                       </>
                     ) : (
                       <>
                         <i className="fas fa-sign-in-alt me-2"></i>
-                        Sign In
+                        {t.signIn}
                       </>
                     )}
                   </button>
 
                   <div className="text-center">
-                    <p className="text-muted mb-0">Don't have an account?</p>
+                    <p className="text-muted mb-0">{t.dontHaveAccount}</p>
                     <a href="/signup" className="text-primary text-decoration-none fw-semibold">
-                      Create Account
+                      {t.createAccount}
                     </a>
                   </div>
                 </form>
@@ -233,7 +320,7 @@ function Login() {
                 <div className="text-center mt-4 pt-3 border-top">
                   <div className="d-flex justify-content-center align-items-center gap-2">
                     <i className="fas fa-shield-alt text-success security-icon"></i>
-                    <small className="text-muted">256-bit SSL Encryption</small>
+                    <small className="text-muted">{t.ssl}</small>
                   </div>
                 </div>
 
@@ -241,7 +328,7 @@ function Login() {
                 <div className="text-center mt-3">
                   <div className="d-flex justify-content-center align-items-center gap-2">
                     <i className="fas fa-microphone text-primary"></i>
-                    <small className="text-muted">Voice commands available - Click the microphone button</small>
+                    <small className="text-muted">{t.voice}</small>
                   </div>
                 </div>
               </div>
@@ -251,10 +338,11 @@ function Login() {
       </div>
 
       {/* Voice Assistant Component */}
-      <VoiceAssistant 
+      <VoiceAssistant
         onVoiceCommand={handleVoiceCommand}
         currentPage="login"
       />
+    
     </div>
   );
 }

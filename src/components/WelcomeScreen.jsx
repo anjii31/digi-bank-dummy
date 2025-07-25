@@ -98,7 +98,8 @@ function WelcomeScreen() {
       noProfile: 'No profile data found. Please complete onboarding.',
       whyRec: 'Why This Recommendation?',
       close: 'Close explanation',
-      loading: 'Loading your profile...'
+      loading: 'Loading your profile...',
+      brand: 'ArthSetu',
     },
     hi: {
       welcome: 'DigiBank में आपका स्वागत है!',
@@ -112,7 +113,8 @@ function WelcomeScreen() {
       noProfile: 'कोई प्रोफ़ाइल डेटा नहीं मिला। कृपया ऑनबोर्डिंग पूरा करें।',
       whyRec: 'यह अनुशंसा क्यों?',
       close: 'व्याख्या बंद करें',
-      loading: 'आपकी प्रोफ़ाइल लोड हो रही है...'
+      loading: 'आपकी प्रोफ़ाइल लोड हो रही है...',
+      brand: 'अर्थसेतू',
     },
     mr: {
       welcome: 'DigiBank मध्ये आपले स्वागत आहे!',
@@ -126,7 +128,8 @@ function WelcomeScreen() {
       noProfile: 'कोणताही प्रोफाइल डेटा सापडला नाही. कृपया ऑनबोर्डिंग पूर्ण करा.',
       whyRec: 'ही शिफारस का?',
       close: 'स्पष्टीकरण बंद करा',
-      loading: 'तुमचा प्रोफाइल लोड होत आहे...'
+      loading: 'तुमचा प्रोफाइल लोड होत आहे...',
+      brand: 'अर्थसेतू',
     }
   };
   const t = translations[language] || translations.en;

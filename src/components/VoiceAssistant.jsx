@@ -34,21 +34,36 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
       sorry: "Sorry, I could not understand. Please try again.",
       listening: "Listening...",
       processing: "Processing: ",
-      unknown: (result) => `I heard: ${result}. Please try a different command.`
+      unknown: (result) => `I heard: ${result}. Please try a different command.`,
+      help: 'Help',
+      commands: 'Voice Commands',
+      available: 'Available Commands',
+      tip: 'Tip',
+      tipText: "You can say 'help' at any time to see these commands.",
     },
     hi: {
       welcome: "DigiBank में आपका स्वागत है। आप वॉइस कमांड का उपयोग कर सकते हैं। वॉइस कमांड के लिए 'help' कहें।",
       sorry: "माफ़ कीजिए, मैं समझ नहीं पाया। कृपया पुनः प्रयास करें।",
       listening: "सुन रहा हूँ...",
       processing: "प्रसंस्करण: ",
-      unknown: (result) => `मैंने सुना: ${result}. कृपया कोई अन्य कमांड आज़माएँ।`
+      unknown: (result) => `मैंने सुना: ${result}. कृपया कोई अन्य कमांड आज़माएँ।`,
+      help: 'मदद',
+      commands: 'वॉइस कमांड्स',
+      available: 'उपलब्ध कमांड्स',
+      tip: 'टिप',
+      tipText: "इन कमांड्स को देखने के लिए कभी भी 'हेल्प' कहें।",
     },
     mr: {
       welcome: "DigiBank मध्ये आपले स्वागत आहे. आपण व्हॉइस कमांड वापरू शकता. व्हॉइस कमांडसाठी 'help' म्हणा.",
       sorry: "माफ करा, मी समजू शकलो नाही. कृपया पुन्हा प्रयत्न करा.",
       listening: "ऐकत आहे...",
       processing: "प्रक्रिया: ",
-      unknown: (result) => `मी ऐकले: ${result}. कृपया दुसरी कमांड वापरा.`
+      unknown: (result) => `मी ऐकले: ${result}. कृपया दुसरी कमांड वापरा.`,
+      help: 'मदत',
+      commands: 'व्हॉइस कमांड्स',
+      available: 'उपलब्ध कमांड्स',
+      tip: 'टीप',
+      tipText: "ही कमांड्स पाहण्यासाठी कधीही 'हेल्प' म्हणा.",
     }
   };
   const t = translations[language] || translations.en;
@@ -97,15 +112,29 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
         console.log('Voice input received:', result);
         setTranscript(result);
         setIsListening(false);
-        
+
+        // --- Handle 'help' command locally ---
+        const lowerResult = result.toLowerCase();
+        if (
+          lowerResult.includes('help') ||
+          lowerResult.includes('मदद') ||
+          lowerResult.includes('सहायता') ||
+          lowerResult.includes('हेल्प')
+        ) {
+          setShowPrompts(true);
+          speak(t.help);
+          return;
+        }
+        // --- End local help handling ---
+
         // Process the voice command
         const command = voiceService.processBankingCommand(result);
         setLastCommand(command);
-        
+
         if (onVoiceCommand) {
           onVoiceCommand(command, result);
         }
-        
+
         // Provide feedback with delay
         setTimeout(() => {
           if (command.action === 'unknown') {
@@ -148,7 +177,8 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
 
   const getPromptsForPage = () => {
     const prompts = voiceService.getBankingPrompts(language);
-    return prompts[currentPage] || prompts.login;
+    // Fallback to login prompts if currentPage is not found or empty
+    return (prompts[currentPage] && prompts[currentPage].length > 0) ? prompts[currentPage] : prompts.login;
   };
 
   const handleVoiceButtonClick = () => {
@@ -190,7 +220,7 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
     <>
       {/* Voice Assistant Button */}
       <div className="position-fixed top-0 end-0 m-4" style={{ zIndex: 1001 }}>
-        <div className="d-flex flex-column align-items-end">
+        <div className="d-flex flex-column align-items-end" style={{ paddingTop: '60%' }}>
           {/* Voice Button */}
           <button
             className={`btn btn-lg rounded-circle shadow-lg voice-assistant-btn ${
@@ -251,12 +281,16 @@ const VoiceAssistant = ({ onVoiceCommand, currentPage = 'login' }) => {
             <div className="card-body">
               <h6 className="text-primary mb-3">{t.available}</h6>
               <ul className="list-unstyled">
-                {getPromptsForPage().map((prompt, index) => (
-                  <li key={index} className="mb-2">
-                    <i className="fas fa-arrow-right text-primary me-2"></i>
-                    {prompt}
-                  </li>
-                ))}
+                {getPromptsForPage() && getPromptsForPage().length > 0 ? (
+                  getPromptsForPage().map((prompt, index) => (
+                    <li key={index} className="mb-2">
+                      <i className="fas fa-arrow-right text-primary me-2"></i>
+                      {prompt}
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-muted">No voice commands available for this page.</li>
+                )}
               </ul>
               
               <div className="mt-3 p-3 bg-light rounded">

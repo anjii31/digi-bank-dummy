@@ -11,6 +11,7 @@ function GroupSavingsTracker() {
   const translations = {
     en: {
       title: 'Group Savings Tracker',
+      subtitle: 'Track group savings and individual contributions for your SHG.',
       add: 'Add Member',
       remove: 'Remove',
       total: 'Total Savings',
@@ -18,21 +19,29 @@ function GroupSavingsTracker() {
       amount: 'Amount',
       save: 'Save',
       enterName: 'Enter member name',
-      enterAmount: 'Enter amount'
+      enterAmount: 'Enter amount',
+      date: 'Date',
+      noContributions: 'No contributions yet.',
+      errorFillAll: 'Please fill all fields.'
     },
     hi: {
       title: 'समूह बचत ट्रैकर',
+      subtitle: 'अपने SHG के लिए समूह बचत और व्यक्तिगत योगदान ट्रैक करें।',
       add: 'सदस्य जोड़ें',
-      remove: 'हटाएँ',
+      remove: 'हटाएं',
       total: 'कुल बचत',
       member: 'सदस्य',
       amount: 'राशि',
       save: 'सहेजें',
       enterName: 'सदस्य का नाम दर्ज करें',
-      enterAmount: 'राशि दर्ज करें'
+      enterAmount: 'राशि दर्ज करें',
+      date: 'तारीख',
+      noContributions: 'अभी तक कोई योगदान नहीं।',
+      errorFillAll: 'कृपया सभी फ़ील्ड भरें।'
     },
     mr: {
       title: 'समूह बचत ट्रॅकर',
+      subtitle: 'आपल्या SHG साठी समूह बचत आणि वैयक्तिक योगदान ट्रॅक करा.',
       add: 'सदस्य जोडा',
       remove: 'काढा',
       total: 'एकूण बचत',
@@ -40,7 +49,10 @@ function GroupSavingsTracker() {
       amount: 'रक्कम',
       save: 'जतन करा',
       enterName: 'सदस्याचे नाव प्रविष्ट करा',
-      enterAmount: 'रक्कम प्रविष्ट करा'
+      enterAmount: 'रक्कम प्रविष्ट करा',
+      date: 'तारीख',
+      noContributions: 'अजून कोणतेही योगदान नाही.',
+      errorFillAll: 'कृपया सर्व फील्ड भरा.'
     }
   };
   const t = translations[language] || translations.en;
@@ -53,7 +65,7 @@ function GroupSavingsTracker() {
   const handleAdd = (e) => {
     e.preventDefault();
     if (!member || !amount || !date) {
-      setError('Please fill all fields.');
+      setError(t.errorFillAll);
       return;
     }
     setContributions([
@@ -75,7 +87,7 @@ function GroupSavingsTracker() {
           <i className="fas fa-users me-2"></i>
           {t.title}
         </h2>
-        <p className="lead text-muted">Track group savings and individual contributions for your SHG.</p>
+        <p className="lead text-muted">{t.subtitle}</p>
       </div>
       <div className="card border-0 shadow-sm mb-4">
         <div className="card-body">
@@ -106,7 +118,7 @@ function GroupSavingsTracker() {
               />
             </div>
             <div className="col-md-3">
-              <label htmlFor="date" className="form-label">Date</label>
+              <label htmlFor="date" className="form-label">{t.date}</label>
               <input 
                 type="date" 
                 className="form-control" 
@@ -131,13 +143,13 @@ function GroupSavingsTracker() {
                 <tr>
                   <th>{t.member}</th>
                   <th>{t.amount} (₹)</th>
-                  <th>Date</th>
+                  <th>{t.date}</th>
                 </tr>
               </thead>
               <tbody>
                 {contributions.length === 0 ? (
                   <tr>
-                    <td colSpan="3" className="text-center text-muted">No contributions yet.</td>
+                    <td colSpan="3" className="text-center text-muted">{t.noContributions}</td>
                   </tr>
                 ) : (
                   contributions.map((c, idx) => (

@@ -10,6 +10,7 @@ import '../App.css';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import govtSchemeVideos from '../data/govtSchemeVideos';
+import { useLanguage } from '../contexts/LanguageContext';
 
 function Dashboard() {
   const { currentUser, logout } = useAuth();
@@ -21,6 +22,89 @@ function Dashboard() {
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [recommendations, setRecommendations] = useState([]);
+  const { language } = useLanguage();
+
+  const translations = {
+    en: {
+      welcome: 'Welcome to ArthSetu (Bridge to Finance)',
+      updateProfile: 'Update Profile / Onboarding',
+      getPlanner: 'Get your own personal planner',
+      goToPlanner: 'Go to Investment Planner',
+      signOut: 'Sign Out',
+      signingOut: 'Signing Out...',
+      profile: 'Profile',
+      settings: 'Settings',
+      dashboard: 'Dashboard',
+      openingChatbot: 'Opening chatbot assistant...',
+      signingOutFeedback: 'Signing out...',
+      alreadyOnDashboard: 'You are already on the dashboard',
+      processing: 'Processing: ',
+      heard: 'I heard: ',
+      tryDifferent: 'Try saying "open chat" for the assistant or "logout" to sign out.',
+      governmentSchemes: 'Government Schemes for You',
+      plannerSummary: 'Get your own personal planner',
+      goToOnboarding: 'Update Profile / Onboarding',
+      goToInvestmentPlanner: 'Go to Investment Planner',
+      personalizedPlan: 'Your Personalized Investment Plan',
+      calculationsTable: 'Calculations Table',
+      projectedGrowth: 'Projected Growth',
+      stepByStep: 'Step-by-Step Plan',
+      brand: 'ArthSetu',
+    },
+    hi: {
+      welcome: 'ArthSetu (Bridge to Finance) में आपका स्वागत है',
+      updateProfile: 'प्रोफ़ाइल अपडेट करें / ऑनबोर्डिंग',
+      getPlanner: 'अपना व्यक्तिगत प्लानर प्राप्त करें',
+      goToPlanner: 'निवेश प्लानर पर जाएं',
+      signOut: 'साइन आउट',
+      signingOut: 'साइन आउट कर रहे हैं...',
+      profile: 'प्रोफ़ाइल',
+      settings: 'सेटिंग्स',
+      dashboard: 'डैशबोर्ड',
+      openingChatbot: 'चैटबोट सहायक खोल रहे हैं...',
+      signingOutFeedback: 'साइन आउट कर रहे हैं...',
+      alreadyOnDashboard: 'आप पहले से ही डैशबोर्ड पर हैं',
+      processing: 'प्रोसेस कर रहे हैं: ',
+      heard: 'मैंने सुना: ',
+      tryDifferent: 'सहायक के लिए "open chat" या साइन आउट के लिए "logout" कहें।',
+      governmentSchemes: 'आपके लिए सरकारी योजनाएँ',
+      plannerSummary: 'अपना व्यक्तिगत प्लानर प्राप्त करें',
+      goToOnboarding: 'प्रोफ़ाइल अपडेट करें / ऑनबोर्डिंग',
+      goToInvestmentPlanner: 'निवेश प्लानर पर जाएं',
+      personalizedPlan: 'आपकी व्यक्तिगत निवेश योजना',
+      calculationsTable: 'गणना तालिका',
+      projectedGrowth: 'अनुमानित वृद्धि',
+      stepByStep: 'चरण-दर-चरण योजना',
+      brand: 'अर्थसेतू',
+    },
+    mr: {
+      welcome: 'ArthSetu (Bridge to Finance) मध्ये आपले स्वागत आहे',
+      updateProfile: 'प्रोफाइल अपडेट करा / ऑनबोर्डिंग',
+      getPlanner: 'आपला वैयक्तिक प्लॅनर मिळवा',
+      goToPlanner: 'इन्व्हेस्टमेंट प्लॅनरवर जा',
+      signOut: 'साइन आउट',
+      signingOut: 'साइन आउट करत आहे...',
+      profile: 'प्रोफाइल',
+      settings: 'सेटिंग्ज',
+      dashboard: 'डॅशबोर्ड',
+      openingChatbot: 'चॅटबोट सहाय्यक उघडत आहे...',
+      signingOutFeedback: 'साइन आउट करत आहे...',
+      alreadyOnDashboard: 'आपण आधीच डॅशबोर्डवर आहात',
+      processing: 'प्रक्रिया करत आहे: ',
+      heard: 'मी ऐकले: ',
+      tryDifferent: 'सहाय्यासाठी "open chat" किंवा साइन आउटसाठी "logout" म्हणा.',
+      governmentSchemes: 'आपल्यासाठी सरकारी योजना',
+      plannerSummary: 'आपला वैयक्तिक प्लॅनर मिळवा',
+      goToOnboarding: 'प्रोफाइल अपडेट करा / ऑनबोर्डिंग',
+      goToInvestmentPlanner: 'इन्व्हेस्टमेंट प्लॅनरवर जा',
+      personalizedPlan: 'आपली वैयक्तिकृत गुंतवणूक योजना',
+      calculationsTable: 'गणना तक्ता',
+      projectedGrowth: 'अनुमानित वाढ',
+      stepByStep: 'पायरी-पायरीने योजना',
+      brand: 'अर्थसेतू',
+    }
+  };
+  const t = translations[language] || translations.en;
 
   // Fetch onboarding profile from Firestore
   useEffect(() => {
@@ -110,26 +194,26 @@ function Dashboard() {
     switch (command.action) {
       case 'open_chatbot':
         setChatbotOpen(true);
-        setVoiceFeedback('Opening chatbot assistant...');
+        setVoiceFeedback(t.openingChatbot);
         break;
       
       case 'logout':
         handleLogout();
-        setVoiceFeedback('Signing out...');
+        setVoiceFeedback(t.signingOutFeedback);
         break;
       
       case 'navigate':
         if (command.target === 'dashboard') {
-          setVoiceFeedback('You are already on the dashboard');
+          setVoiceFeedback(t.alreadyOnDashboard);
         }
         break;
       
       case 'unknown':
-        setVoiceFeedback(`I heard: "${transcript}". Try saying "open chat" for the assistant or "logout" to sign out.`);
+        setVoiceFeedback(`${t.heard}"${transcript}". ${t.tryDifferent}`);
         break;
       
       default:
-        setVoiceFeedback(`Processing: ${transcript}`);
+        setVoiceFeedback(`${t.processing}${transcript}`);
     }
     
     // Clear feedback after 3 seconds
@@ -165,7 +249,7 @@ function Dashboard() {
                    style={{width: '40px', height: '40px'}}>
                 <i className="fas fa-university text-primary"></i>
               </div>
-              <span className="fw-bold">ArthSetu</span>
+              <span className="fw-bold">{t.brand}</span>
             </div>
             
             <div className="navbar-nav ms-auto">
@@ -175,8 +259,8 @@ function Dashboard() {
                   {currentUser?.displayName || currentUser?.email}
                 </a>
                 <ul className="dropdown-menu">
-                  <li><a className="dropdown-item" href="#"><i className="fas fa-user me-2"></i>Profile</a></li>
-                  <li><a className="dropdown-item" href="#"><i className="fas fa-cog me-2"></i>Settings</a></li>
+                  <li><a className="dropdown-item" href="#"><i className="fas fa-user me-2"></i>{t.profile}</a></li>
+                  <li><a className="dropdown-item" href="#"><i className="fas fa-cog me-2"></i>{t.settings}</a></li>
                   <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button 
@@ -187,12 +271,12 @@ function Dashboard() {
                       {loading ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                          Signing Out...
+                          {t.signingOut}
                         </>
                       ) : (
                         <>
                           <i className="fas fa-sign-out-alt me-2"></i>
-                          Sign Out
+                          {t.signOut}
                         </>
                       )}
                     </button>
@@ -222,11 +306,11 @@ function Dashboard() {
                 <div className="card-body">
                   <h2 className="card-title text-primary mb-3">
                     <i className="fas fa-home me-2"></i>
-                    Welcome to ArthSetu (Bridge to Finance)
+                    {t.welcome}
                   </h2>
                   <button className="btn btn-outline-primary me-2" onClick={() => navigate('/onboarding')}>
                     <i className="fas fa-user-edit me-2"></i>
-                    Update Profile / Onboarding
+                    {t.updateProfile}
                   </button>
                 </div>
               </div>
@@ -250,13 +334,13 @@ function Dashboard() {
               >
                 <div className="card-body d-flex flex-column align-items-center justify-content-center py-5">
                   <i className="fas fa-calendar-check fa-2x mb-3" style={{ color: '#fff' }}></i>
-                  <h4 className="fw-bold mb-2" style={{ color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.18)' }}>Get your own personal planner</h4>
+                  <h4 className="fw-bold mb-2" style={{ color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.18)' }}>{t.getPlanner}</h4>
                   <button
                     className="btn btn-light btn-lg mt-2"
                     style={{ color: '#7b4397', fontWeight: 700 }}
                     onClick={e => { e.stopPropagation(); navigate('/investment-planner'); }}
                   >
-                    Go to Investment Planner
+                    {t.goToPlanner}
                   </button>
                 </div>
               </div>
@@ -265,7 +349,7 @@ function Dashboard() {
             {/* Government Scheme Videos */}
             {filteredVideos.length > 0 && (
               <div className="col-12 mb-4">
-                <h4 className="fw-bold text-primary mb-3">Government Schemes for You</h4>
+                <h4 className="fw-bold text-primary mb-3">{t.governmentSchemes}</h4>
                 <div className="row g-4">
                   {filteredVideos.map((video, idx) => (
                     <div className="col-md-4" key={video.youtubeId + idx}>
@@ -307,10 +391,11 @@ function Dashboard() {
         />
 
         {/* Voice Assistant Component */}
-        <VoiceAssistant 
-          onVoiceCommand={handleVoiceCommand}
-          currentPage="dashboard"
-        />
+         <VoiceAssistant
+            onVoiceCommand={handleVoiceCommand}
+            currentPage="dashboard"
+          />
+  
       </div>
     </div>
   );
