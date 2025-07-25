@@ -92,12 +92,74 @@ function Signup() {
   };
 
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-gradient-primary" 
-         style={{fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'}}>
+    <div
+      className="min-vh-100 d-flex align-items-center justify-content-center"
+      style={{
+        fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+        minHeight: '100vh',
+        background: `linear-gradient(rgba(246,248,250,0.7), rgba(246,248,250,0.7)), url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat fixed`,
+        backdropFilter: 'blur(2px)',
+        WebkitBackdropFilter: 'blur(2px)',
+      }}
+    >
+      <style>{`
+        .signup-card {
+          background: rgba(255,255,255,0.75);
+          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+          border-radius: 24px;
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border: 1px solid rgba(255,255,255,0.18);
+        }
+        .signup-card .card-body {
+          padding: 2.5rem 2rem;
+        }
+        .signup-card .form-control {
+          background: rgba(255,255,255,0.85);
+          border-radius: 12px;
+        }
+        .signup-card .btn-primary {
+          background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+          border: none;
+          box-shadow: 0 2px 8px rgba(118,75,162,0.12);
+        }
+        .signup-card .btn-primary:active, .signup-card .btn-primary:focus {
+          background: linear-gradient(90deg, #764ba2 0%, #667eea 100%);
+        }
+        .signup-card .form-label {
+          font-weight: 600;
+        }
+        .signup-card .bank-logo {
+          box-shadow: 0 2px 12px 0 rgba(102,126,234,0.18);
+        }
+        .signup-card .security-icon {
+          box-shadow: 0 1px 4px 0 rgba(102,126,234,0.10);
+        }
+        .signup-card .text-primary {
+          background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          text-fill-color: transparent;
+        }
+        .signup-card .btn-outline-secondary {
+          border-radius: 12px;
+        }
+        .signup-card .alert-info {
+          background: linear-gradient(90deg, #e0e7ff 0%, #f3e8ff 100%);
+          color: #4f46e5;
+          border: none;
+        }
+        .signup-card .alert-danger {
+          background: linear-gradient(90deg, #ffe0e0 0%, #f3e8ff 100%);
+          color: #b91c1c;
+          border: none;
+        }
+      `}</style>
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-md-6 col-lg-4">
-            <div className="card shadow-lg border-0">
+            <div className="card shadow-lg border-0 signup-card">
               <div className="card-body p-5">
                 {/* Bank Logo Section */}
                 <div className="text-center mb-4">

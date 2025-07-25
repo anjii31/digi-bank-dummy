@@ -9,8 +9,10 @@ import '../App.css';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { auth } from '../firebase';
+import { useLanguage } from '../contexts/LanguageContext';
 
 function Login() {
+  const { language } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -85,13 +87,130 @@ function Login() {
     setTimeout(() => setVoiceFeedback(''), 3000);
   };
 
+  const translations = {
+    en: {
+      welcomeBack: 'Welcome Back',
+      signInTo: 'Sign in to your ArthSetu (Bridge to finance) account',
+      email: 'Email Address',
+      emailPlaceholder: "Enter your email or say 'my email is' followed by your email",
+      password: 'Password',
+      passwordPlaceholder: "Enter your password or say 'my password is' followed by your password",
+      rememberMe: 'Remember me',
+      forgotPassword: 'Forgot Password?',
+      signingIn: 'Signing In...',
+      signIn: 'Sign In',
+      dontHaveAccount: "Don't have an account?",
+      createAccount: 'Create Account',
+      ssl: '256-bit SSL Encryption',
+      voice: 'Voice commands available - Click the microphone button',
+      errorPrefix: 'Failed to sign in:',
+    },
+    hi: {
+      welcomeBack: 'वापस स्वागत है',
+      signInTo: 'अपने ArthSetu (Bridge to finance) खाते में साइन इन करें',
+      email: 'ईमेल पता',
+      emailPlaceholder: "अपना ईमेल दर्ज करें या 'मेरा ईमेल है' बोलें और फिर अपना ईमेल बताएं",
+      password: 'पासवर्ड',
+      passwordPlaceholder: "अपना पासवर्ड दर्ज करें या 'मेरा पासवर्ड है' बोलें और फिर अपना पासवर्ड बताएं",
+      rememberMe: 'मुझे याद रखें',
+      forgotPassword: 'पासवर्ड भूल गए?',
+      signingIn: 'साइन इन हो रहा है...',
+      signIn: 'साइन इन',
+      dontHaveAccount: 'कोई खाता नहीं है?',
+      createAccount: 'खाता बनाएं',
+      ssl: '256-बिट SSL एन्क्रिप्शन',
+      voice: 'वॉयस कमांड उपलब्ध हैं - माइक्रोफोन बटन पर क्लिक करें',
+      errorPrefix: 'साइन इन विफल:',
+    },
+    mr: {
+      welcomeBack: 'पुन्हा स्वागत आहे',
+      signInTo: 'तुमच्या ArthSetu (Bridge to finance) खात्यात साइन इन करा',
+      email: 'ईमेल पत्ता',
+      emailPlaceholder: "तुमचा ईमेल प्रविष्ट करा किंवा 'माझा ईमेल आहे' असे बोला आणि नंतर तुमचा ईमेल सांगा",
+      password: 'पासवर्ड',
+      passwordPlaceholder: "तुमचा पासवर्ड प्रविष्ट करा किंवा 'माझा पासवर्ड आहे' असे बोला आणि नंतर तुमचा पासवर्ड सांगा",
+      rememberMe: 'मला लक्षात ठेवा',
+      forgotPassword: 'पासवर्ड विसरलात?',
+      signingIn: 'साइन इन होत आहे...',
+      signIn: 'साइन इन',
+      dontHaveAccount: 'खाते नाहीये?',
+      createAccount: 'खाते तयार करा',
+      ssl: '256-बिट SSL एनक्रिप्शन',
+      voice: 'व्हॉइस कमांड उपलब्ध - मायक्रोफोन बटणावर क्लिक करा',
+      errorPrefix: 'साइन इन अयशस्वी:',
+    }
+  };
+  const t = translations[language] || translations.en;
+
   return (
-    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-gradient-primary" 
-         style={{fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif'}}>
+    <div
+      className="min-vh-100 d-flex align-items-center justify-content-center"
+      style={{
+        fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+        minHeight: '100vh',
+        background: `linear-gradient(rgba(246,248,250,0.7), rgba(246,248,250,0.7)), url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat fixed`,
+        backdropFilter: 'blur(2px)',
+        WebkitBackdropFilter: 'blur(2px)',
+      }}
+    >
+      <style>{`
+        .login-card {
+          background: rgba(255,255,255,0.75);
+          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+          border-radius: 24px;
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border: 1px solid rgba(255,255,255,0.18);
+        }
+        .login-card .card-body {
+          padding: 2.5rem 2rem;
+        }
+        .login-card .form-control {
+          background: rgba(255,255,255,0.85);
+          border-radius: 12px;
+        }
+        .login-card .btn-primary {
+          background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+          border: none;
+          box-shadow: 0 2px 8px rgba(118,75,162,0.12);
+        }
+        .login-card .btn-primary:active, .login-card .btn-primary:focus {
+          background: linear-gradient(90deg, #764ba2 0%, #667eea 100%);
+        }
+        .login-card .form-label {
+          font-weight: 600;
+        }
+        .login-card .bank-logo {
+          box-shadow: 0 2px 12px 0 rgba(102,126,234,0.18);
+        }
+        .login-card .security-icon {
+          box-shadow: 0 1px 4px 0 rgba(102,126,234,0.10);
+        }
+        .login-card .text-primary {
+          background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          text-fill-color: transparent;
+        }
+        .login-card .btn-outline-secondary {
+          border-radius: 12px;
+        }
+        .login-card .alert-info {
+          background: linear-gradient(90deg, #e0e7ff 0%, #f3e8ff 100%);
+          color: #4f46e5;
+          border: none;
+        }
+        .login-card .alert-danger {
+          background: linear-gradient(90deg, #ffe0e0 0%, #f3e8ff 100%);
+          color: #b91c1c;
+          border: none;
+        }
+      `}</style>
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-md-6 col-lg-4">
-            <div className="card shadow-lg border-0">
+            <div className="card shadow-lg border-0 login-card">
               <div className="card-body p-5">
                 {/* Bank Logo Section */}
                 <div className="text-center mb-4">
@@ -121,8 +240,8 @@ function Login() {
                   </div>
                 </div>
 
-                <h2 className="text-center mb-4 fw-bold text-dark">Welcome Back</h2>
-                <p className="text-center text-muted mb-4">Sign in to your ArthSetu (Bridge to finance) account</p>
+                <h2 className="text-center mb-4 fw-bold text-dark">{t.welcomeBack}</h2>
+                <p className="text-center text-muted mb-4">{t.signInTo}</p>
 
                 {/* Voice Feedback Alert */}
                 {voiceFeedback && (
@@ -136,7 +255,7 @@ function Login() {
                 {error && (
                   <div className="alert alert-danger" role="alert">
                     <i className="fas fa-exclamation-triangle me-2"></i>
-                    {error}
+                    {t.errorPrefix} {error}
                   </div>
                 )}
 
@@ -144,7 +263,7 @@ function Login() {
                   <div className="mb-3">
                     <label htmlFor="email" className="form-label fw-semibold text-dark">
                       <i className="fas fa-envelope me-2 text-primary"></i>
-                      Email Address
+                      {t.email}
                     </label>
                     <div className="input-group">
                       <span className="input-group-text bg-light border-end-0">
@@ -156,7 +275,7 @@ function Login() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="form-control border-start-0" 
-                        placeholder="Enter your email or say 'my email is' followed by your email"
+                        placeholder={t.emailPlaceholder}
                         required
                       />
                     </div>
@@ -165,7 +284,7 @@ function Login() {
                   <div className="mb-4">
                     <label htmlFor="password" className="form-label fw-semibold text-dark">
                       <i className="fas fa-lock me-2 text-primary"></i>
-                      Password
+                      {t.password}
                     </label>
                     <div className="input-group">
                       <span className="input-group-text bg-light border-end-0">
@@ -177,7 +296,7 @@ function Login() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="form-control border-start-0" 
-                        placeholder="Enter your password or say 'my password is' followed by your password"
+                        placeholder={t.passwordPlaceholder}
                         required
                       />
                       <button 
@@ -195,11 +314,11 @@ function Login() {
                     <div className="form-check">
                       <input className="form-check-input" type="checkbox" id="remember" />
                       <label className="form-check-label text-muted" htmlFor="remember">
-                        Remember me
+                        {t.rememberMe}
                       </label>
                     </div>
                     <a href="/forgot-password" className="text-primary text-decoration-none fw-semibold">
-                      Forgot Password?
+                      {t.forgotPassword}
                     </a>
                   </div>
 
@@ -211,20 +330,20 @@ function Login() {
                     {loading ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Signing In...
+                        {t.signingIn}
                       </>
                     ) : (
                       <>
                         <i className="fas fa-sign-in-alt me-2"></i>
-                        Sign In
+                        {t.signIn}
                       </>
                     )}
                   </button>
 
                   <div className="text-center">
-                    <p className="text-muted mb-0">Don't have an account?</p>
+                    <p className="text-muted mb-0">{t.dontHaveAccount}</p>
                     <a href="/signup" className="text-primary text-decoration-none fw-semibold">
-                      Create Account
+                      {t.createAccount}
                     </a>
                   </div>
                 </form>
@@ -233,7 +352,7 @@ function Login() {
                 <div className="text-center mt-4 pt-3 border-top">
                   <div className="d-flex justify-content-center align-items-center gap-2">
                     <i className="fas fa-shield-alt text-success security-icon"></i>
-                    <small className="text-muted">256-bit SSL Encryption</small>
+                    <small className="text-muted">{t.ssl}</small>
                   </div>
                 </div>
 
@@ -241,7 +360,7 @@ function Login() {
                 <div className="text-center mt-3">
                   <div className="d-flex justify-content-center align-items-center gap-2">
                     <i className="fas fa-microphone text-primary"></i>
-                    <small className="text-muted">Voice commands available - Click the microphone button</small>
+                    <small className="text-muted">{t.voice}</small>
                   </div>
                 </div>
               </div>
@@ -250,11 +369,13 @@ function Login() {
         </div>
       </div>
 
-      {/* Voice Assistant Component */}
-      <VoiceAssistant 
-        onVoiceCommand={handleVoiceCommand}
-        currentPage="login"
-      />
+      {/* Voice Assistant fixed at right center */}
+      <div style={{ position: 'fixed', top: '20%', right: 32, transform: 'translateY(-50%)', zIndex: 1100 }}>
+        <VoiceAssistant
+          onVoiceCommand={handleVoiceCommand}
+          currentPage="login"
+        />
+      </div>
     </div>
   );
 }
