@@ -17,6 +17,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './App.css';
 import OnboardingGuard from './components/OnboardingGuard';
+import InvestmentPlanner from './components/InvestmentPlanner';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/welcome" element={<WelcomeScreen />} />
           <Route path="/group-savings" element={<GroupSavingsTracker />} />
+          <Route path="/investment-planner" element={<InvestmentPlanner />} />
           <Route 
             path="/dashboard" 
             element={

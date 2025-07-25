@@ -1,0 +1,24 @@
+const govtSchemeVideos = [
+  {"userType": "individual", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=B-M8ZotuQhs", "youtubeId": "B-M8ZotuQhs", "govtScheme": "Pradhan Mantri MatruVandana Yojna", "language": "english", "state": "maharashtra"},
+  {"userType": "individual", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=j-eMTH5fuEQ", "youtubeId": "j-eMTH5fuEQ", "govtScheme": "Pradhan Mantri MatruVandana Yojna", "language": "hindi", "state": "maharashtra"},
+  {"userType": "individual", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=WjwbOJrtlPQ", "youtubeId": "WjwbOJrtlPQ", "govtScheme": "Pradhan Mantri MatruVandana Yojna", "language": "marathi", "state": "maharashtra"},
+  {"userType": "individual", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=jFRp1NufS0o", "youtubeId": "jFRp1NufS0o", "govtScheme": "MahilaShakti Kendra", "language": "english", "state": "maharashtra"},
+  {"userType": "individual", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=jFRp1NufS0o", "youtubeId": "jFRp1NufS0o", "govtScheme": "MahilaShakti Kendra", "language": "hindi", "state": "maharashtra"},
+  {"userType": "individual", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=jFRp1NufS0o", "youtubeId": "jFRp1NufS0o", "govtScheme": "MahilaShakti Kendra", "language": "marathi", "state": "maharashtra"},
+  {"userType": "individual", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=SrP1w2c9YHk", "youtubeId": "SrP1w2c9YHk", "govtScheme": "Ujjawala", "language": "english", "state": "maharashtra"},
+  {"userType": "individual", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=TySziehYb9E", "youtubeId": "TySziehYb9E", "govtScheme": "Ujjawala", "language": "hindi", "state": "maharashtra"},
+  {"userType": "individual", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=AHg9vPsjqsc", "youtubeId": "AHg9vPsjqsc", "govtScheme": "Ujjawala", "language": "marathi", "state": "maharashtra"},
+  {"userType": "farmer", "gender": "female", "age": "35", "youtubeLink": "https://m.youtube.com/watch?v=mS7o890vnT8 ", "youtubeId": "mS7o890vnT8", "govtScheme": "Rashtriya Krishi Vikas Yojana", "language": "english", "state": "maharashtra"},
+  {"userType": "farmer", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=_7Oy7CNr7SQ", "youtubeId": "_7Oy7CNr7SQ", "govtScheme": "Rashtriya Krishi Vikas Yojana", "language": "hindi", "state": "maharashtra"},
+  {"userType": "farmer", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=nEP-eOqAL1Y", "youtubeId": "nEP-eOqAL1Y", "govtScheme": "Rashtriya Krishi Vikas Yojana", "language": "marathi", "state": "maharashtra"},
+  {"userType": "farmer", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=rVeiaNQX2lk", "youtubeId": "rVeiaNQX2lk", "govtScheme": "Pradhan Mantri Krishi Sinchayee Yojana", "language": "english", "state": "maharashtra"},
+  {"userType": "farmer", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=Eqni6d3m6GQ", "youtubeId": "Eqni6d3m6GQ", "govtScheme": "Pradhan Mantri Krishi Sinchayee Yojana", "language": "hindi", "state": "maharashtra"},
+  {"userType": "farmer", "gender": "female", "age": "35", "youtubeLink": "https://m.youtube.com/watch?v=xgEWbdjYnaM", "youtubeId": "xgEWbdjYnaM", "govtScheme": "Pradhan Mantri Krishi Sinchayee Yojana", "language": "marathi", "state": "maharashtra"},
+  {"userType": "farmer", "gender": "female", "age": "35", "youtubeLink": "https://m.youtube.com/watch?v=QJG7HmQyYcY&pp=ygUMI2Zvb2RlY3VyaXR5", "youtubeId": "QJG7HmQyYcY", "govtScheme": "Food and Nutrition Security", "language": "english", "state": "maharashtra"},
+  {"userType": "farmer", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=b8oG0k_QOJM", "youtubeId": "b8oG0k_QOJM", "govtScheme": "Food and Nutrition Security", "language": "hindi", "state": "maharashtra"},
+  {"userType": "farmer", "gender": "female", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=56QPyInqIq4", "youtubeId": "56QPyInqIq4", "govtScheme": "Food and Nutrition Security", "language": "marathi", "state": "maharashtra"},
+  {"userType": "MSME", "gender": "male", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=8HWoJNgG_iw", "youtubeId": "8HWoJNgG_iw", "govtScheme": "Pradhan Mantri Mudra Yojana (PMMY)", "language": "marathi", "state": "maharashtra"},
+  {"userType": "MSME", "gender": "male", "age": "35", "youtubeLink": "https://www.youtube.com/watch?v=a3wK63d8e1c", "youtubeId": "a3wK63d8e1c", "govtScheme": "Pradhan Mantri Mudra Yojana (PMMY)", "language": "Hindi", "state": "maharashtra"}
+];
+
+export default govtSchemeVideos; 
