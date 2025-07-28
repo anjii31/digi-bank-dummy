@@ -313,7 +313,7 @@ const InvestmentPlanner = () => {
       investmentType: 'Investment Type',
       amountInvested: 'Amount Invested',
       maturityPerMonth: 'Maturity Amount per Month',
-      maturityOneYear: 'Maturity Amount in One Year',
+      maturityOneYear: 'Maturity Amount in One Month',
       overallReturns: 'Overall Returns',
       year: 'Year',
       value: 'Value (₹)',
@@ -427,22 +427,6 @@ const InvestmentPlanner = () => {
                 {loading ? t.generating : t.getPlan}
               </motion.button>
               {error && <div className="alert alert-danger mt-3">{t.error}</div>}
-              {/* Animated Summary Cards */}
-              {summaryNumbers.length > 0 && (
-                <div className="row mb-4">
-                  {summaryNumbers.map((item, idx) => (
-                    <motion.div className="col-md-6 mb-3" key={idx} initial="hidden" animate="visible" variants={fadeIn} transition={{ delay: 0.1 * idx }}>
-                      <div className="card border-0 shadow-sm h-100 text-center" style={{ background: '#f8f9fa' }}>
-                        <div className="card-body">
-                          <i className={`${item.icon} fa-2x mb-2`} style={{ color: item.color }}></i>
-                          <h6 className="fw-bold mb-1">{item.label}</h6>
-                          <CountUp end={item.value} duration={1.2} separator="," prefix="₹" className="fs-4 fw-bold text-dark" />
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
               {/* AI Summary Card */}
               {aiResponse && (
                 <motion.div className="card border-0 shadow-sm mb-4" initial="hidden" animate="visible" variants={fadeIn}>
